@@ -1,0 +1,1788 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="오늘을 네 컷에">
+<meta name="theme-color" content="#ffffff">
+<title>오늘을 네 컷에</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@200;400;600;800;900&family=Gaegu:wght@700&display=swap">
+<style>
+/* 모노 스튜디오 — 흰 벽 사진관. 흰 바탕·검은 글씨·검은 알약 버튼. 촬영 화면만 검은 암실. 태블릿 가로 화면 전체를 씀 */
+:root{
+  --wall:#ffffff; --wall-2:#f3f3f1; --ink:#161616; --ink-2:#6b6b68; --hair:#dcdcd8; --rec:#e5484d; --warn:#c4262c;
+  --f:"Gothic A1","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+body{background:var(--wall);color:var(--ink);font-family:var(--f);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.scr{position:fixed;inset:0;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);overflow:hidden;background:var(--wall);color:var(--ink);container-type:inline-size;font-family:var(--f)}
+.scr>.inner{position:relative;width:100%;height:100%}
+.view{position:absolute;inset:0;display:flex}
+.h{margin:0;font-weight:900;letter-spacing:-.04em;line-height:1.08;text-wrap:balance;word-break:keep-all}
+.sub{margin:0;font-weight:400;color:var(--ink-2);font-size:1.7cqw;line-height:1.5;word-break:keep-all}
+.btn{font:inherit;font-weight:800;border:.2cqw solid var(--ink);border-radius:999px;cursor:pointer;color:var(--ink);background:var(--wall);padding:1.3cqw 3.6cqw;font-size:2cqw;letter-spacing:-.02em;touch-action:manipulation}
+.btn.go{background:var(--ink);color:var(--wall)}
+.btn:disabled{opacity:.25;cursor:default}
+.btn:focus-visible,.sw:focus-visible,.thumb:focus-visible,.logo:focus-visible{outline:.3cqw solid var(--ink);outline-offset:.4cqw}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btns{display:flex;gap:1.2cqw;flex-wrap:wrap}
+.idle{align-items:center;padding:0 7cqw;gap:6cqw}
+.idle .left{flex:1;display:flex;flex-direction:column;gap:2.4cqw;align-items:flex-start}
+.logo{min-width:6cqw;height:6.4cqw;display:grid;place-items:center;cursor:pointer;overflow:hidden}
+.logo img{max-width:24cqw;max-height:100%;object-fit:contain}
+.logo .mark{font-weight:900;font-size:1.6cqw;letter-spacing:.3em;color:var(--ink-2)}
+.idle .h{font-size:7.2cqw}
+.idle .h span{display:block;font-weight:200}
+.idle .btn{font-size:2.6cqw;padding:1.6cqw 5cqw}
+.idle .meta{font-size:1.5cqw;color:var(--ink-2);letter-spacing:.02em;min-height:1em}
+.idle .sample{width:19cqw;max-height:86%;object-fit:contain;transform:rotate(4deg);box-shadow:0 2cqw 4cqw rgba(0,0,0,.14),0 .2cqw .6cqw rgba(0,0,0,.08)}
+.shoot{background:#0d0d0d}
+.shoot video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#0d0d0d}
+.shoot video.mirror{transform:scaleX(-1)}
+.guide{position:absolute;inset:0;margin:auto;aspect-ratio:3/2;height:100%;max-width:100%;border:.25cqw solid rgba(255,255,255,.55);pointer-events:none}
+
+
+.hud{position:absolute;left:2.4cqw;top:2cqw;right:2.4cqw;display:flex;justify-content:space-between;align-items:center;font-size:1.8cqw;color:#fff;font-weight:600;letter-spacing:.02em}
+.rec{display:inline-flex;gap:.8cqw;align-items:center}
+.rec i{width:1.1cqw;height:1.1cqw;border-radius:50%;background:var(--rec);display:inline-block;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.2}}
+.count{position:absolute;inset:0;display:grid;place-items:center;font-size:30cqw;font-weight:200;color:#fff;letter-spacing:-.06em;pointer-events:none;text-shadow:0 0 4cqw rgba(0,0,0,.25)}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.flash.on{animation:flash .45s ease-out}
+@keyframes flash{0%{opacity:.95}100%{opacity:0}}
+.strip{position:absolute;left:0;right:0;bottom:0;display:flex;gap:.8cqw;padding:1.4cqw 2.4cqw;background:linear-gradient(transparent,rgba(0,0,0,.6))}
+.strip canvas,.strip span{width:8cqw;aspect-ratio:3/2;border:.18cqw solid #fff}
+.strip span{border-color:rgba(255,255,255,.35)}
+/* 2단 */
+.split{gap:4cqw;padding:4cqw 5cqw;align-items:stretch}
+.side{width:28cqw;display:flex;flex-direction:column;gap:1.8cqw;justify-content:center}
+.side .h{font-size:4.4cqw}
+.side .btn{align-self:flex-start}
+.grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:1.2cqw;align-content:center}
+.grid.g8{grid-template-columns:repeat(4,1fr)}
+.thumb{position:relative;border:0;padding:0;overflow:hidden;cursor:pointer;background:#000;aspect-ratio:3/2;outline:.0cqw solid var(--ink)}
+.thumb canvas{width:100%;height:100%;display:block;transition:opacity .15s}
+.thumb.sel{outline:.45cqw solid var(--ink);outline-offset:.35cqw}
+.grid.full .thumb:not(.sel) canvas{opacity:.35}
+.thumb b{position:absolute;left:.8cqw;top:.8cqw;width:3.2cqw;height:3.2cqw;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:800;font-size:1.7cqw}
+.count-dots{display:flex;gap:.8cqw}
+.count-dots i{width:1.4cqw;height:1.4cqw;border-radius:50%;border:.18cqw solid var(--ink)}
+.count-dots i.on{background:var(--ink)}
+.out{flex:1;position:relative;min-width:0;min-height:0;background:var(--wall-2);border-radius:1cqw}
+.out canvas{position:absolute;inset:0;margin:auto;max-width:88%;max-height:90%;width:auto;height:auto;box-shadow:0 1cqw 2.4cqw rgba(0,0,0,.14)}
+.frames{display:grid;gap:.8cqw}
+.sw{font:inherit;font-size:1.7cqw;font-weight:600;border:0;border-bottom:.15cqw solid var(--hair);padding:1cqw 0;cursor:pointer;display:flex;gap:1.4cqw;align-items:center;background:none;color:var(--ink);text-align:left}
+.sw i{width:2.6cqw;height:3.6cqw;flex:none;border:.15cqw solid #c8c8c4}
+.sw small{font-weight:400;color:var(--ink-2);font-size:1.35cqw;display:block}
+.sw[aria-pressed="true"]{font-weight:900}
+.sw[aria-pressed="true"] i{outline:.3cqw solid var(--ink);outline-offset:.25cqw}
+.tag{font-size:1.4cqw;color:var(--ink-2)}
+/* 저장 */
+.center{flex-direction:column;align-items:center;justify-content:center;gap:2.4cqw;text-align:center}
+.center .h{font-size:5cqw}
+.bar{width:44cqw;height:.35cqw;background:var(--hair);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ink);transition:width .2s linear}
+.steps{list-style:none;margin:0;padding:0;font-size:1.7cqw;display:grid;gap:.6cqw;text-align:left}
+.steps li{color:#b3b3af}.steps li.on{color:var(--ink);font-weight:600}
+/* 인쇄 창 흉내 */
+.sheet{position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:flex-end;justify-content:center}
+.sheet>div{width:52cqw;background:#f2f2f5;border-radius:2cqw 2cqw 0 0;padding:2cqw 2.4cqw 2.6cqw;font-size:1.8cqw;display:grid;gap:1cqw}
+.sheet .row{display:flex;justify-content:space-between;background:#fff;border-radius:1cqw;padding:1.2cqw 1.6cqw}
+.sheet .row span:last-child{color:#5e636c}
+.sheet .hd{display:flex;justify-content:space-between;align-items:center;font-weight:800}
+.sheet .hd button{font:inherit;font-weight:800;border:0;background:none;color:#0a64d6;cursor:pointer;font-size:1.8cqw}
+.sheet small{color:#5e636c;font-size:1.4cqw}
+/* 끝 */
+.done{align-items:center;justify-content:center;gap:6cqw;padding:5cqw}
+.qrbig{display:grid;gap:1.2cqw;justify-items:center;font-size:1.6cqw;color:var(--ink-2)}
+.qrbig canvas{width:22cqw;height:22cqw;image-rendering:pixelated;border:.2cqw solid var(--ink);padding:1cqw;background:#fff}
+.done .side{width:auto;max-width:40cqw}
+
+.settings{position:absolute;inset:0;background:rgba(20,20,20,.45);display:flex;align-items:center;justify-content:center;z-index:5}
+.settings form{width:76cqw;max-height:94%;overflow:auto;-webkit-overflow-scrolling:touch;background:#fff;border-radius:1.4cqw;padding:2.6cqw 3.2cqw;display:grid;gap:1.3cqw;font-size:1.6cqw;-webkit-user-select:text;user-select:text}
+.settings h3{margin:0;font-weight:900;font-size:3cqw;letter-spacing:-.03em}
+.settings fieldset{border:0;border-top:.12cqw solid var(--hair);margin:0;padding:1.1cqw 0 0;display:grid;grid-template-columns:15cqw 1fr;gap:1cqw;align-items:center}
+.settings legend{display:contents}
+.settings .lab{font-weight:800}
+.opts{display:flex;flex-wrap:wrap;gap:.8cqw 1.8cqw;align-items:center}
+.opts label{display:inline-flex;gap:.6cqw;align-items:center;cursor:pointer}
+.settings input[type=text],.settings input[type=url],.settings input[type=password],.settings select{font:inherit;padding:.6cqw 1cqw;border:.15cqw solid #c8c8c4;border-radius:.6cqw;background:#fff;color:var(--ink)}
+.settings input[type=url]{width:100%}
+.settings input[type=radio],.settings input[type=checkbox]{width:1.8cqw;height:1.8cqw;accent-color:#161616}
+.settings .dis{opacity:.35}
+.settings .err{margin:.6cqw 0 0;color:var(--warn);font-size:1.4cqw;font-weight:600}
+.settings .ok{margin:.6cqw 0 0;color:#1d7a3a;font-size:1.4cqw;font-weight:600}
+.settings .note{color:var(--ink-2);font-size:1.35cqw;margin:0;line-height:1.5}
+.settings .small{font-size:1.4cqw;padding:.5cqw 1.6cqw}
+.settings .row2{display:flex;gap:1.2cqw;align-items:center;flex-wrap:wrap}
+#optFrames{max-height:none}
+/* 비밀번호 */
+.pin{position:absolute;inset:0;background:rgba(20,20,20,.5);display:flex;align-items:center;justify-content:center;z-index:6}
+.pin>div{background:#fff;border-radius:1.6cqw;padding:2.6cqw 3cqw;display:grid;gap:1.6cqw;justify-items:center;min-width:34cqw}
+.pin h3{margin:0;font-size:2.4cqw;font-weight:900}
+.pin .dots{display:flex;gap:1.4cqw}.pin .dots i{width:1.6cqw;height:1.6cqw;border-radius:50%;border:.2cqw solid var(--ink)}.pin .dots i.on{background:var(--ink)}
+.pin .pad{display:grid;grid-template-columns:repeat(3,7cqw);gap:1cqw}
+.pin .pad button{font:inherit;font-weight:800;font-size:2.6cqw;height:6cqw;border-radius:1cqw;border:.15cqw solid var(--hair);background:var(--wall-2);color:var(--ink);cursor:pointer;touch-action:manipulation}
+.pin .msg{min-height:1.4em;color:var(--warn);font-size:1.5cqw;font-weight:600}
+.toast{position:absolute;left:50%;bottom:4cqw;transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:600;font-size:1.7cqw;padding:1.2cqw 2.4cqw;border-radius:999px;z-index:7;max-width:80cqw;text-align:center}
+.camerr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2cqw;color:#fff;text-align:center;padding:6cqw}
+.camerr .h{font-size:3.6cqw}.camerr .sub{color:#c9c9c5}
+.rotate{position:fixed;inset:0;background:var(--wall);z-index:9;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;font-weight:800;font-size:22px}
+@media (orientation:portrait) and (max-width:1100px){.rotate{display:flex}}
+#printArea{display:none}
+@media print{
+  @page{size:100mm 148mm;margin:0}
+  html,body{height:auto;overflow:visible;background:#fff}
+  .scr,.rotate,.toast{display:none!important}
+  #printArea{display:block!important}
+  #printArea img{display:block;width:100mm;height:148mm;object-fit:cover}
+}
+@media (prefers-reduced-motion:reduce){.rec i,.flash.on{animation:none}.bar i,.thumb canvas{transition:none}}
+</style>
+</head>
+<body>
+<div class="rotate">태블릿을 가로로 돌려 주세요</div>
+<div class="scr" id="scr"><div class="inner">
+  <section class="view idle" data-v="idle">
+    <div class="left">
+      <div class="logo" id="logoBox" role="button" tabindex="0" aria-label="로고, 다섯 번 누르면 교사 설정"><span class="mark">PHOTO</span></div>
+      <h1 class="h"><span>오늘을</span>네 컷에</h1>
+      <p class="sub">화면을 누르면 촬영이 시작돼요</p>
+      <button class="btn go" id="start">시작하기</button>
+      <div class="meta" id="idleMeta"></div>
+    </div>
+    <canvas class="sample" id="sample" width="1181" height="1748" aria-hidden="true"></canvas>
+  </section>
+
+  <section class="view shoot" data-v="shoot" hidden>
+    <video id="cam" autoplay muted playsinline></video>
+    <div class="guide" aria-hidden="true"></div>
+    <div class="hud"><span id="shotNo">1 / 6</span><span class="rec" id="rec"><i></i>타임랩스 녹화 중</span></div>
+    <div class="count" id="count"></div>
+    <div class="flash" id="flash"></div>
+    <div class="strip" id="film"></div>
+    <div class="camerr" id="camErr" hidden>
+      <h2 class="h">카메라를 켤 수 없어요</h2>
+      <p class="sub" id="camErrMsg">설정 &gt; Safari &gt; 카메라에서 이 사이트를 '허용'으로 바꾼 뒤 다시 눌러 주세요.</p>
+      <button class="btn go" id="camRetry" style="background:#fff;color:#161616">다시 시도</button>
+      <button class="btn" id="camHome" style="background:transparent;color:#fff;border-color:#fff">처음으로</button>
+    </div>
+  </section>
+
+  <section class="view split" data-v="pick" hidden>
+    <div class="grid" id="grid"></div>
+    <div class="side">
+      <h2 class="h" id="pickTitle">4장을 골라 주세요</h2>
+      <div class="count-dots" id="dots"><i></i><i></i><i></i><i></i></div>
+      <p class="sub">누른 순서대로 칸에 들어가요. 다시 누르면 빠져요.</p>
+      <div class="btns"><button class="btn go" id="toFrame" disabled>다음</button><button class="btn" id="retake">다시 찍기 1회</button></div>
+    </div>
+  </section>
+
+  <section class="view split" data-v="frame" hidden>
+    <div class="out"><canvas id="prev1" width="1181" height="1748"></canvas></div>
+    <div class="side">
+      <h2 class="h">틀을 골라 주세요</h2>
+      <div class="frames" id="swatches"></div>
+      <button class="btn go" id="toNext">이 틀로 할게요</button>
+    </div>
+  </section>
+
+  <section class="view center" data-v="upload" hidden>
+    <h2 class="h" id="upTitle">사진을 저장하고 있어요</h2>
+    <div class="bar"><i id="barFill"></i></div>
+    <ol class="steps" id="upSteps"></ol>
+  </section>
+
+  <section class="view split" data-v="print" hidden>
+    <div class="out"><canvas id="prev2" width="1181" height="1748"></canvas></div>
+    <div class="side">
+      <h2 class="h">완성했어요</h2>
+      <p class="sub" id="printHint">인쇄 창이 뜨면 Canon SELPHY CP1500을 고르고 '인쇄'를 한 번 더 눌러 주세요.</p>
+      <div class="btns"><button class="btn go" id="doPrint">인쇄하기</button><button class="btn" id="skipPrint">인쇄 없이 끝내기</button></div>
+    </div>
+  </section>
+
+  <section class="view done" data-v="done" hidden>
+    <div class="qrbig" id="doneQr"><canvas id="qrBig" width="300" height="300"></canvas><span id="qrCaption">휴대폰 카메라로 찍으면 사진을 받아요</span></div>
+    <div class="side">
+      <h2 class="h" id="doneTitle">사진이 나오고 있어요</h2>
+      <p class="sub" id="doneSub">앞쪽 구멍에서 약 40초 뒤에 나와요.</p>
+      <p class="sub" id="doneLeft">30초 뒤 처음 화면으로 돌아가요</p>
+      <button class="btn" id="home">처음으로</button>
+    </div>
+  </section>
+
+  <div class="pin" id="pin" hidden><div>
+    <h3>교사 비밀번호</h3>
+    <div class="dots" id="pinDots"><i></i><i></i><i></i><i></i></div>
+    <div class="pad" id="pinPad"></div>
+    <div class="msg" id="pinMsg"></div>
+  </div></div>
+
+  <div class="settings" id="settings" hidden>
+    <form id="setForm" autocomplete="off">
+      <h3>교사 설정</h3>
+      <fieldset><legend><span class="lab">인쇄 배치</span></legend>
+        <div class="opts"><label><input type="radio" name="layout" value="A" id="lyA">2줄 띠 (잘라서 둘이 나눔)</label><label><input type="radio" name="layout" value="B" id="lyB">큰 4장 (2 × 2)</label></div></fieldset>
+      <fieldset><legend><span class="lab">날짜 넣기</span></legend>
+        <div class="opts"><label><input type="checkbox" id="optDate">사진에 오늘 날짜</label></div></fieldset>
+      <fieldset><legend><span class="lab">문구</span></legend>
+        <div class="opts"><input type="text" id="optText" maxlength="24" placeholder="예: 2026 중산제 · 2학년 8반"></div></fieldset>
+      <fieldset><legend><span class="lab">로고</span></legend>
+        <div class="opts"><input type="file" id="optLogo" accept="image/*"><button type="button" class="btn small" id="logoClear">지우기</button></div></fieldset>
+      <fieldset><legend><span class="lab">촬영</span></legend>
+        <div class="opts"><label>카운트다운 <select id="optCount"><option value="3">3초</option><option value="5">5초</option><option value="10">10초</option></select></label>
+        <label>장수 <select id="optShots"><option value="6">6장</option><option value="8">8장</option></select></label>
+        <label>카메라 <select id="optFacing"><option value="user">앞 카메라</option><option value="environment">뒤 카메라</option></select></label>
+        <label><input type="checkbox" id="optMirror">거울처럼 좌우 뒤집기</label></div></fieldset>
+      <fieldset><legend><span class="lab">보일 틀</span></legend>
+        <div><div class="opts" id="optFrames"></div><p class="err" id="frameErr" hidden>틀을 하나 이상 켜 주세요.</p></div></fieldset>
+      <fieldset><legend><span class="lab">QR</span></legend>
+        <div class="opts"><label><input type="checkbox" id="optQr">사진에 내려받기 QR 넣기</label></div></fieldset>
+      <fieldset id="qrKind"><legend><span class="lab">QR 내려받기</span></legend>
+        <div class="opts"><label><input type="radio" name="qrc" value="photo" id="qcP">사진만</label><label><input type="radio" name="qrc" value="video" id="qcV">사진 + 타임랩스 영상</label></div></fieldset>
+      <fieldset id="gasRow"><legend><span class="lab">저장 주소</span></legend>
+        <div style="display:grid;gap:.8cqw"><input type="url" id="optGas" placeholder="https://script.google.com/macros/s/…/exec" inputmode="url" autocapitalize="off" spellcheck="false">
+        <div class="row2"><button type="button" class="btn small" id="gasTest">연결 시험</button><span id="gasMsg" class="note"></span></div>
+        <p class="note">구글 Apps Script로 만든 '웹 앱' 주소예요. 사진은 내 구글 드라이브 '포토부스' 폴더에 저장되고, QR은 그 사진의 링크가 돼요. QR을 쓰려면 인터넷이 되는 Wi-Fi가 필요해요.</p></div></fieldset>
+      <fieldset><legend><span class="lab">비밀번호</span></legend>
+        <div class="opts"><input type="password" id="optPin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="새 숫자 4자리 (비우면 그대로)"></div></fieldset>
+      <p class="note">설정은 이 태블릿에만 저장돼요. 처음 비밀번호는 0000이에요.</p>
+      <p class="err" id="setErr" hidden></p>
+      <div class="btns"><button type="submit" class="btn go">저장하고 닫기</button><button type="button" class="btn" id="setCancel">닫기</button><button type="button" class="btn" id="fsBtn">전체 화면</button></div>
+    </form>
+  </div>
+  <div class="toast" id="toast" hidden></div>
+</div></div>
+<div id="printArea"><img id="printImg" alt=""></div>
+
+<script>
+/* QRCode for JavaScript — Copyright (c) 2009 Kazuhiko Arase, MIT license (qrcode-terminal 판). 오프라인에서도 QR을 그리려고 함께 넣음 */
+(function(){var M={},C={};function req(n){n=n.replace("./","");if(C[n])return C[n].exports;var m={exports:{}};C[n]=m;M[n](m,m.exports,req);return m.exports;}
+M['QRErrorCorrectLevel']=function(module,exports,require){
+module.exports = {
+	L : 1,
+	M : 0,
+	Q : 3,
+	H : 2
+};
+
+
+};
+M['QRPolynomial']=function(module,exports,require){
+var QRMath = require('./QRMath');
+
+function QRPolynomial(num, shift) {
+	if (num.length === undefined) {
+		throw new Error(num.length + "/" + shift);
+	}
+
+	var offset = 0;
+
+	while (offset < num.length && num[offset] === 0) {
+		offset++;
+	}
+
+	this.num = new Array(num.length - offset + shift);
+	for (var i = 0; i < num.length - offset; i++) {
+		this.num[i] = num[i + offset];
+	}
+}
+
+QRPolynomial.prototype = {
+
+	get : function(index) {
+		return this.num[index];
+	},
+	
+	getLength : function() {
+		return this.num.length;
+	},
+	
+	multiply : function(e) {
+	
+		var num = new Array(this.getLength() + e.getLength() - 1);
+	
+		for (var i = 0; i < this.getLength(); i++) {
+			for (var j = 0; j < e.getLength(); j++) {
+				num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
+			}
+		}
+	
+		return new QRPolynomial(num, 0);
+	},
+	
+	mod : function(e) {
+	
+		if (this.getLength() - e.getLength() < 0) {
+			return this;
+		}
+	
+		var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
+	
+		var num = new Array(this.getLength() );
+		
+		for (var i = 0; i < this.getLength(); i++) {
+			num[i] = this.get(i);
+		}
+		
+		for (var x = 0; x < e.getLength(); x++) {
+			num[x] ^= QRMath.gexp(QRMath.glog(e.get(x) ) + ratio);
+		}
+	
+		// recursive call
+		return new QRPolynomial(num, 0).mod(e);
+	}
+};
+
+module.exports = QRPolynomial;
+
+};
+M['QRMaskPattern']=function(module,exports,require){
+module.exports = {
+	PATTERN000 : 0,
+	PATTERN001 : 1,
+	PATTERN010 : 2,
+	PATTERN011 : 3,
+	PATTERN100 : 4,
+	PATTERN101 : 5,
+	PATTERN110 : 6,
+	PATTERN111 : 7
+};
+
+};
+M['QRMode']=function(module,exports,require){
+module.exports = {
+    MODE_NUMBER :       1 << 0,
+    MODE_ALPHA_NUM :    1 << 1,
+    MODE_8BIT_BYTE :    1 << 2,
+    MODE_KANJI :        1 << 3
+};
+
+};
+M['QRUtil']=function(module,exports,require){
+var QRMode = require('./QRMode');
+var QRPolynomial = require('./QRPolynomial');
+var QRMath = require('./QRMath');
+var QRMaskPattern = require('./QRMaskPattern');
+
+var QRUtil = {
+
+    PATTERN_POSITION_TABLE : [
+        [],
+        [6, 18],
+        [6, 22],
+        [6, 26],
+        [6, 30],
+        [6, 34],
+        [6, 22, 38],
+        [6, 24, 42],
+        [6, 26, 46],
+        [6, 28, 50],
+        [6, 30, 54],        
+        [6, 32, 58],
+        [6, 34, 62],
+        [6, 26, 46, 66],
+        [6, 26, 48, 70],
+        [6, 26, 50, 74],
+        [6, 30, 54, 78],
+        [6, 30, 56, 82],
+        [6, 30, 58, 86],
+        [6, 34, 62, 90],
+        [6, 28, 50, 72, 94],
+        [6, 26, 50, 74, 98],
+        [6, 30, 54, 78, 102],
+        [6, 28, 54, 80, 106],
+        [6, 32, 58, 84, 110],
+        [6, 30, 58, 86, 114],
+        [6, 34, 62, 90, 118],
+        [6, 26, 50, 74, 98, 122],
+        [6, 30, 54, 78, 102, 126],
+        [6, 26, 52, 78, 104, 130],
+        [6, 30, 56, 82, 108, 134],
+        [6, 34, 60, 86, 112, 138],
+        [6, 30, 58, 86, 114, 142],
+        [6, 34, 62, 90, 118, 146],
+        [6, 30, 54, 78, 102, 126, 150],
+        [6, 24, 50, 76, 102, 128, 154],
+        [6, 28, 54, 80, 106, 132, 158],
+        [6, 32, 58, 84, 110, 136, 162],
+        [6, 26, 54, 82, 110, 138, 166],
+        [6, 30, 58, 86, 114, 142, 170]
+    ],
+
+    G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+    G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+    G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
+
+    getBCHTypeInfo : function(data) {
+        var d = data << 10;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );    
+        }
+        return ( (data << 10) | d) ^ QRUtil.G15_MASK;
+    },
+
+    getBCHTypeNumber : function(data) {
+        var d = data << 12;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );    
+        }
+        return (data << 12) | d;
+    },
+
+    getBCHDigit : function(data) {
+
+        var digit = 0;
+
+        while (data !== 0) {
+            digit++;
+            data >>>= 1;
+        }
+
+        return digit;
+    },
+
+    getPatternPosition : function(typeNumber) {
+        return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
+    },
+
+    getMask : function(maskPattern, i, j) {
+        
+        switch (maskPattern) {
+            
+        case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
+        case QRMaskPattern.PATTERN001 : return i % 2 === 0;
+        case QRMaskPattern.PATTERN010 : return j % 3 === 0;
+        case QRMaskPattern.PATTERN011 : return (i + j) % 3 === 0;
+        case QRMaskPattern.PATTERN100 : return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 === 0;
+        case QRMaskPattern.PATTERN101 : return (i * j) % 2 + (i * j) % 3 === 0;
+        case QRMaskPattern.PATTERN110 : return ( (i * j) % 2 + (i * j) % 3) % 2 === 0;
+        case QRMaskPattern.PATTERN111 : return ( (i * j) % 3 + (i + j) % 2) % 2 === 0;
+
+        default :
+            throw new Error("bad maskPattern:" + maskPattern);
+        }
+    },
+
+    getErrorCorrectPolynomial : function(errorCorrectLength) {
+
+        var a = new QRPolynomial([1], 0);
+
+        for (var i = 0; i < errorCorrectLength; i++) {
+            a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0) );
+        }
+
+        return a;
+    },
+
+    getLengthInBits : function(mode, type) {
+
+        if (1 <= type && type < 10) {
+
+            // 1 - 9
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 10;
+            case QRMode.MODE_ALPHA_NUM  : return 9;
+            case QRMode.MODE_8BIT_BYTE  : return 8;
+            case QRMode.MODE_KANJI      : return 8;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 27) {
+
+            // 10 - 26
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 12;
+            case QRMode.MODE_ALPHA_NUM  : return 11;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 10;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 41) {
+
+            // 27 - 40
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 14;
+            case QRMode.MODE_ALPHA_NUM  : return 13;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 12;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else {
+            throw new Error("type:" + type);
+        }
+    },
+
+    getLostPoint : function(qrCode) {
+        
+        var moduleCount = qrCode.getModuleCount();
+        var lostPoint = 0;
+        var row = 0; 
+        var col = 0;
+
+        
+        // LEVEL1
+        
+        for (row = 0; row < moduleCount; row++) {
+
+            for (col = 0; col < moduleCount; col++) {
+
+                var sameCount = 0;
+                var dark = qrCode.isDark(row, col);
+
+                for (var r = -1; r <= 1; r++) {
+
+                    if (row + r < 0 || moduleCount <= row + r) {
+                        continue;
+                    }
+
+                    for (var c = -1; c <= 1; c++) {
+
+                        if (col + c < 0 || moduleCount <= col + c) {
+                            continue;
+                        }
+
+                        if (r === 0 && c === 0) {
+                            continue;
+                        }
+
+                        if (dark === qrCode.isDark(row + r, col + c) ) {
+                            sameCount++;
+                        }
+                    }
+                }
+
+                if (sameCount > 5) {
+                    lostPoint += (3 + sameCount - 5);
+                }
+            }
+        }
+
+        // LEVEL2
+
+        for (row = 0; row < moduleCount - 1; row++) {
+            for (col = 0; col < moduleCount - 1; col++) {
+                var count = 0;
+                if (qrCode.isDark(row,     col    ) ) count++;
+                if (qrCode.isDark(row + 1, col    ) ) count++;
+                if (qrCode.isDark(row,     col + 1) ) count++;
+                if (qrCode.isDark(row + 1, col + 1) ) count++;
+                if (count === 0 || count === 4) {
+                    lostPoint += 3;
+                }
+            }
+        }
+
+        // LEVEL3
+
+        for (row = 0; row < moduleCount; row++) {
+            for (col = 0; col < moduleCount - 6; col++) {
+                if (qrCode.isDark(row, col) && 
+                        !qrCode.isDark(row, col + 1) && 
+                         qrCode.isDark(row, col + 2) && 
+                         qrCode.isDark(row, col + 3) && 
+                         qrCode.isDark(row, col + 4) && 
+                        !qrCode.isDark(row, col + 5) && 
+                         qrCode.isDark(row, col + 6) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount - 6; row++) {
+                if (qrCode.isDark(row, col) &&
+                        !qrCode.isDark(row + 1, col) &&
+                         qrCode.isDark(row + 2, col) &&
+                         qrCode.isDark(row + 3, col) &&
+                         qrCode.isDark(row + 4, col) &&
+                        !qrCode.isDark(row + 5, col) &&
+                         qrCode.isDark(row + 6, col) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        // LEVEL4
+        
+        var darkCount = 0;
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount; row++) {
+                if (qrCode.isDark(row, col) ) {
+                    darkCount++;
+                }
+            }
+        }
+        
+        var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+        lostPoint += ratio * 10;
+
+        return lostPoint;       
+    }
+
+};
+
+module.exports = QRUtil;
+
+};
+M['QRMath']=function(module,exports,require){
+var QRMath = {
+
+	glog : function(n) {
+	
+		if (n < 1) {
+			throw new Error("glog(" + n + ")");
+		}
+		
+		return QRMath.LOG_TABLE[n];
+	},
+	
+	gexp : function(n) {
+	
+		while (n < 0) {
+			n += 255;
+		}
+	
+		while (n >= 256) {
+			n -= 255;
+		}
+	
+		return QRMath.EXP_TABLE[n];
+	},
+	
+	EXP_TABLE : new Array(256),
+	
+	LOG_TABLE : new Array(256)
+
+};
+	
+for (var i = 0; i < 8; i++) {
+	QRMath.EXP_TABLE[i] = 1 << i;
+}
+for (var i = 8; i < 256; i++) {
+	QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
+		^ QRMath.EXP_TABLE[i - 5]
+		^ QRMath.EXP_TABLE[i - 6]
+		^ QRMath.EXP_TABLE[i - 8];
+}
+for (var i = 0; i < 255; i++) {
+	QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
+}
+
+module.exports = QRMath;
+
+};
+M['QR8bitByte']=function(module,exports,require){
+var QRMode = require('./QRMode');
+
+function QR8bitByte(data) {
+	this.mode = QRMode.MODE_8BIT_BYTE;
+	this.data = data;
+}
+
+QR8bitByte.prototype = {
+
+	getLength : function() {
+		return this.data.length;
+	},
+	
+	write : function(buffer) {
+		for (var i = 0; i < this.data.length; i++) {
+			// not JIS ...
+			buffer.put(this.data.charCodeAt(i), 8);
+		}
+	}
+};
+
+module.exports = QR8bitByte;
+
+};
+M['index']=function(module,exports,require){
+//---------------------------------------------------------------------
+// QRCode for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//   http://www.opensource.org/licenses/mit-license.php
+//
+// The word "QR Code" is registered trademark of 
+// DENSO WAVE INCORPORATED
+//   http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+// Modified to work in node for this project (and some refactoring)
+//---------------------------------------------------------------------
+
+var QR8bitByte = require('./QR8bitByte');
+var QRUtil = require('./QRUtil');
+var QRPolynomial = require('./QRPolynomial');
+var QRRSBlock = require('./QRRSBlock');
+var QRBitBuffer = require('./QRBitBuffer');
+
+function QRCode(typeNumber, errorCorrectLevel) {
+	this.typeNumber = typeNumber;
+	this.errorCorrectLevel = errorCorrectLevel;
+	this.modules = null;
+	this.moduleCount = 0;
+	this.dataCache = null;
+	this.dataList = [];
+}
+
+QRCode.prototype = {
+	
+	addData : function(data) {
+		var newData = new QR8bitByte(data);
+		this.dataList.push(newData);
+		this.dataCache = null;
+	},
+	
+	isDark : function(row, col) {
+		if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
+			throw new Error(row + "," + col);
+		}
+		return this.modules[row][col];
+	},
+
+	getModuleCount : function() {
+		return this.moduleCount;
+	},
+	
+	make : function() {
+		// Calculate automatically typeNumber if provided is < 1
+		if (this.typeNumber < 1 ){
+			var typeNumber = 1;
+			for (typeNumber = 1; typeNumber < 40; typeNumber++) {
+				var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, this.errorCorrectLevel);
+
+				var buffer = new QRBitBuffer();
+				var totalDataCount = 0;
+				for (var i = 0; i < rsBlocks.length; i++) {
+					totalDataCount += rsBlocks[i].dataCount;
+				}
+
+				for (var x = 0; x < this.dataList.length; x++) {
+					var data = this.dataList[x];
+					buffer.put(data.mode, 4);
+					buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+					data.write(buffer);
+				}
+				if (buffer.getLengthInBits() <= totalDataCount * 8)
+					break;
+			}
+			this.typeNumber = typeNumber;
+		}
+		this.makeImpl(false, this.getBestMaskPattern() );
+	},
+	
+	makeImpl : function(test, maskPattern) {
+		
+		this.moduleCount = this.typeNumber * 4 + 17;
+		this.modules = new Array(this.moduleCount);
+		
+		for (var row = 0; row < this.moduleCount; row++) {
+			
+			this.modules[row] = new Array(this.moduleCount);
+			
+			for (var col = 0; col < this.moduleCount; col++) {
+				this.modules[row][col] = null;//(col + row) % 3;
+			}
+		}
+	
+		this.setupPositionProbePattern(0, 0);
+		this.setupPositionProbePattern(this.moduleCount - 7, 0);
+		this.setupPositionProbePattern(0, this.moduleCount - 7);
+		this.setupPositionAdjustPattern();
+		this.setupTimingPattern();
+		this.setupTypeInfo(test, maskPattern);
+		
+		if (this.typeNumber >= 7) {
+			this.setupTypeNumber(test);
+		}
+	
+		if (this.dataCache === null) {
+			this.dataCache = QRCode.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
+		}
+	
+		this.mapData(this.dataCache, maskPattern);
+	},
+
+	setupPositionProbePattern : function(row, col)  {
+		
+		for (var r = -1; r <= 7; r++) {
+			
+			if (row + r <= -1 || this.moduleCount <= row + r) continue;
+			
+			for (var c = -1; c <= 7; c++) {
+				
+				if (col + c <= -1 || this.moduleCount <= col + c) continue;
+				
+				if ( (0 <= r && r <= 6 && (c === 0 || c === 6) ) || 
+                     (0 <= c && c <= 6 && (r === 0 || r === 6) ) || 
+                     (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+					this.modules[row + r][col + c] = true;
+				} else {
+					this.modules[row + r][col + c] = false;
+				}
+			}		
+		}		
+	},
+	
+	getBestMaskPattern : function() {
+	
+		var minLostPoint = 0;
+		var pattern = 0;
+	
+		for (var i = 0; i < 8; i++) {
+			
+			this.makeImpl(true, i);
+	
+			var lostPoint = QRUtil.getLostPoint(this);
+	
+			if (i === 0 || minLostPoint >  lostPoint) {
+				minLostPoint = lostPoint;
+				pattern = i;
+			}
+		}
+	
+		return pattern;
+	},
+	
+	createMovieClip : function(target_mc, instance_name, depth) {
+	
+		var qr_mc = target_mc.createEmptyMovieClip(instance_name, depth);
+		var cs = 1;
+	
+		this.make();
+
+		for (var row = 0; row < this.modules.length; row++) {
+			
+			var y = row * cs;
+			
+			for (var col = 0; col < this.modules[row].length; col++) {
+	
+				var x = col * cs;
+				var dark = this.modules[row][col];
+			
+				if (dark) {
+					qr_mc.beginFill(0, 100);
+					qr_mc.moveTo(x, y);
+					qr_mc.lineTo(x + cs, y);
+					qr_mc.lineTo(x + cs, y + cs);
+					qr_mc.lineTo(x, y + cs);
+					qr_mc.endFill();
+				}
+			}
+		}
+		
+		return qr_mc;
+	},
+
+	setupTimingPattern : function() {
+		
+		for (var r = 8; r < this.moduleCount - 8; r++) {
+			if (this.modules[r][6] !== null) {
+				continue;
+			}
+			this.modules[r][6] = (r % 2 === 0);
+		}
+	
+		for (var c = 8; c < this.moduleCount - 8; c++) {
+			if (this.modules[6][c] !== null) {
+				continue;
+			}
+			this.modules[6][c] = (c % 2 === 0);
+		}
+	},
+	
+	setupPositionAdjustPattern : function() {
+	
+		var pos = QRUtil.getPatternPosition(this.typeNumber);
+		
+		for (var i = 0; i < pos.length; i++) {
+		
+			for (var j = 0; j < pos.length; j++) {
+			
+				var row = pos[i];
+				var col = pos[j];
+				
+				if (this.modules[row][col] !== null) {
+					continue;
+				}
+				
+				for (var r = -2; r <= 2; r++) {
+				
+					for (var c = -2; c <= 2; c++) {
+					
+						if (Math.abs(r) === 2 || 
+                            Math.abs(c) === 2 ||
+                            (r === 0 && c === 0) ) {
+							this.modules[row + r][col + c] = true;
+						} else {
+							this.modules[row + r][col + c] = false;
+						}
+					}
+				}
+			}
+		}
+	},
+	
+	setupTypeNumber : function(test) {
+	
+		var bits = QRUtil.getBCHTypeNumber(this.typeNumber);
+        var mod;
+	
+		for (var i = 0; i < 18; i++) {
+			mod = (!test && ( (bits >> i) & 1) === 1);
+			this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod;
+		}
+	
+		for (var x = 0; x < 18; x++) {
+			mod = (!test && ( (bits >> x) & 1) === 1);
+			this.modules[x % 3 + this.moduleCount - 8 - 3][Math.floor(x / 3)] = mod;
+		}
+	},
+	
+	setupTypeInfo : function(test, maskPattern) {
+	
+		var data = (this.errorCorrectLevel << 3) | maskPattern;
+		var bits = QRUtil.getBCHTypeInfo(data);
+        var mod;
+	
+		// vertical		
+		for (var v = 0; v < 15; v++) {
+	
+			mod = (!test && ( (bits >> v) & 1) === 1);
+	
+			if (v < 6) {
+				this.modules[v][8] = mod;
+			} else if (v < 8) {
+				this.modules[v + 1][8] = mod;
+			} else {
+				this.modules[this.moduleCount - 15 + v][8] = mod;
+			}
+		}
+	
+		// horizontal
+		for (var h = 0; h < 15; h++) {
+	
+			mod = (!test && ( (bits >> h) & 1) === 1);
+			
+			if (h < 8) {
+				this.modules[8][this.moduleCount - h - 1] = mod;
+			} else if (h < 9) {
+				this.modules[8][15 - h - 1 + 1] = mod;
+			} else {
+				this.modules[8][15 - h - 1] = mod;
+			}
+		}
+	
+		// fixed module
+		this.modules[this.moduleCount - 8][8] = (!test);
+	
+	},
+	
+	mapData : function(data, maskPattern) {
+		
+		var inc = -1;
+		var row = this.moduleCount - 1;
+		var bitIndex = 7;
+		var byteIndex = 0;
+		
+		for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+	
+			if (col === 6) col--;
+	
+			while (true) {
+	
+				for (var c = 0; c < 2; c++) {
+					
+					if (this.modules[row][col - c] === null) {
+						
+						var dark = false;
+	
+						if (byteIndex < data.length) {
+							dark = ( ( (data[byteIndex] >>> bitIndex) & 1) === 1);
+						}
+	
+						var mask = QRUtil.getMask(maskPattern, row, col - c);
+	
+						if (mask) {
+							dark = !dark;
+						}
+						
+						this.modules[row][col - c] = dark;
+						bitIndex--;
+	
+						if (bitIndex === -1) {
+							byteIndex++;
+							bitIndex = 7;
+						}
+					}
+				}
+								
+				row += inc;
+	
+				if (row < 0 || this.moduleCount <= row) {
+					row -= inc;
+					inc = -inc;
+					break;
+				}
+			}
+		}
+		
+	}
+
+};
+
+QRCode.PAD0 = 0xEC;
+QRCode.PAD1 = 0x11;
+
+QRCode.createData = function(typeNumber, errorCorrectLevel, dataList) {
+	
+	var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+	
+	var buffer = new QRBitBuffer();
+	
+	for (var i = 0; i < dataList.length; i++) {
+		var data = dataList[i];
+		buffer.put(data.mode, 4);
+		buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+		data.write(buffer);
+	}
+
+	// calc num max data.
+	var totalDataCount = 0;
+	for (var x = 0; x < rsBlocks.length; x++) {
+		totalDataCount += rsBlocks[x].dataCount;
+	}
+
+	if (buffer.getLengthInBits() > totalDataCount * 8) {
+		throw new Error("code length overflow. (" + 
+            buffer.getLengthInBits() + 
+            ">" +  
+            totalDataCount * 8 + 
+            ")");
+	}
+
+	// end code
+	if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+		buffer.put(0, 4);
+	}
+
+	// padding
+	while (buffer.getLengthInBits() % 8 !== 0) {
+		buffer.putBit(false);
+	}
+
+	// padding
+	while (true) {
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD0, 8);
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD1, 8);
+	}
+
+	return QRCode.createBytes(buffer, rsBlocks);
+};
+
+QRCode.createBytes = function(buffer, rsBlocks) {
+
+	var offset = 0;
+	
+	var maxDcCount = 0;
+	var maxEcCount = 0;
+	
+	var dcdata = new Array(rsBlocks.length);
+	var ecdata = new Array(rsBlocks.length);
+	
+	for (var r = 0; r < rsBlocks.length; r++) {
+
+		var dcCount = rsBlocks[r].dataCount;
+		var ecCount = rsBlocks[r].totalCount - dcCount;
+
+		maxDcCount = Math.max(maxDcCount, dcCount);
+		maxEcCount = Math.max(maxEcCount, ecCount);
+		
+		dcdata[r] = new Array(dcCount);
+		
+		for (var i = 0; i < dcdata[r].length; i++) {
+			dcdata[r][i] = 0xff & buffer.buffer[i + offset];
+		}
+		offset += dcCount;
+		
+		var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+		var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+		var modPoly = rawPoly.mod(rsPoly);
+		ecdata[r] = new Array(rsPoly.getLength() - 1);
+		for (var x = 0; x < ecdata[r].length; x++) {
+            var modIndex = x + modPoly.getLength() - ecdata[r].length;
+			ecdata[r][x] = (modIndex >= 0)? modPoly.get(modIndex) : 0;
+		}
+
+	}
+	
+	var totalCodeCount = 0;
+	for (var y = 0; y < rsBlocks.length; y++) {
+		totalCodeCount += rsBlocks[y].totalCount;
+	}
+
+	var data = new Array(totalCodeCount);
+	var index = 0;
+
+	for (var z = 0; z < maxDcCount; z++) {
+		for (var s = 0; s < rsBlocks.length; s++) {
+			if (z < dcdata[s].length) {
+				data[index++] = dcdata[s][z];
+			}
+		}
+	}
+
+	for (var xx = 0; xx < maxEcCount; xx++) {
+		for (var t = 0; t < rsBlocks.length; t++) {
+			if (xx < ecdata[t].length) {
+				data[index++] = ecdata[t][xx];
+			}
+		}
+	}
+
+	return data;
+
+};
+
+module.exports = QRCode;
+
+};
+M['QRBitBuffer']=function(module,exports,require){
+function QRBitBuffer() {
+	this.buffer = [];
+	this.length = 0;
+}
+
+QRBitBuffer.prototype = {
+
+	get : function(index) {
+		var bufIndex = Math.floor(index / 8);
+		return ( (this.buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+	},
+	
+	put : function(num, length) {
+		for (var i = 0; i < length; i++) {
+			this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+		}
+	},
+	
+	getLengthInBits : function() {
+		return this.length;
+	},
+	
+	putBit : function(bit) {
+	
+		var bufIndex = Math.floor(this.length / 8);
+		if (this.buffer.length <= bufIndex) {
+			this.buffer.push(0);
+		}
+	
+		if (bit) {
+			this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
+		}
+	
+		this.length++;
+	}
+};
+
+module.exports = QRBitBuffer;
+
+};
+M['QRRSBlock']=function(module,exports,require){
+var QRErrorCorrectLevel = require('./QRErrorCorrectLevel');
+
+function QRRSBlock(totalCount, dataCount) {
+	this.totalCount = totalCount;
+	this.dataCount  = dataCount;
+}
+
+QRRSBlock.RS_BLOCK_TABLE = [
+
+	// L
+	// M
+	// Q
+	// H
+
+	// 1
+	[1, 26, 19],
+	[1, 26, 16],
+	[1, 26, 13],
+	[1, 26, 9],
+	
+	// 2
+	[1, 44, 34],
+	[1, 44, 28],
+	[1, 44, 22],
+	[1, 44, 16],
+
+	// 3
+	[1, 70, 55],
+	[1, 70, 44],
+	[2, 35, 17],
+	[2, 35, 13],
+
+	// 4		
+	[1, 100, 80],
+	[2, 50, 32],
+	[2, 50, 24],
+	[4, 25, 9],
+	
+	// 5
+	[1, 134, 108],
+	[2, 67, 43],
+	[2, 33, 15, 2, 34, 16],
+	[2, 33, 11, 2, 34, 12],
+	
+	// 6
+	[2, 86, 68],
+	[4, 43, 27],
+	[4, 43, 19],
+	[4, 43, 15],
+	
+	// 7		
+	[2, 98, 78],
+	[4, 49, 31],
+	[2, 32, 14, 4, 33, 15],
+	[4, 39, 13, 1, 40, 14],
+	
+	// 8
+	[2, 121, 97],
+	[2, 60, 38, 2, 61, 39],
+	[4, 40, 18, 2, 41, 19],
+	[4, 40, 14, 2, 41, 15],
+	
+	// 9
+	[2, 146, 116],
+	[3, 58, 36, 2, 59, 37],
+	[4, 36, 16, 4, 37, 17],
+	[4, 36, 12, 4, 37, 13],
+	
+	// 10		
+	[2, 86, 68, 2, 87, 69],
+	[4, 69, 43, 1, 70, 44],
+	[6, 43, 19, 2, 44, 20],
+	[6, 43, 15, 2, 44, 16],
+
+	// 11
+	[4, 101, 81],
+	[1, 80, 50, 4, 81, 51],
+	[4, 50, 22, 4, 51, 23],
+	[3, 36, 12, 8, 37, 13],
+
+	// 12
+	[2, 116, 92, 2, 117, 93],
+	[6, 58, 36, 2, 59, 37],
+	[4, 46, 20, 6, 47, 21],
+	[7, 42, 14, 4, 43, 15],
+
+	// 13
+	[4, 133, 107],
+	[8, 59, 37, 1, 60, 38],
+	[8, 44, 20, 4, 45, 21],
+	[12, 33, 11, 4, 34, 12],
+
+	// 14
+	[3, 145, 115, 1, 146, 116],
+	[4, 64, 40, 5, 65, 41],
+	[11, 36, 16, 5, 37, 17],
+	[11, 36, 12, 5, 37, 13],
+
+	// 15
+	[5, 109, 87, 1, 110, 88],
+	[5, 65, 41, 5, 66, 42],
+	[5, 54, 24, 7, 55, 25],
+	[11, 36, 12],
+
+	// 16
+	[5, 122, 98, 1, 123, 99],
+	[7, 73, 45, 3, 74, 46],
+	[15, 43, 19, 2, 44, 20],
+	[3, 45, 15, 13, 46, 16],
+
+	// 17
+	[1, 135, 107, 5, 136, 108],
+	[10, 74, 46, 1, 75, 47],
+	[1, 50, 22, 15, 51, 23],
+	[2, 42, 14, 17, 43, 15],
+
+	// 18
+	[5, 150, 120, 1, 151, 121],
+	[9, 69, 43, 4, 70, 44],
+	[17, 50, 22, 1, 51, 23],
+	[2, 42, 14, 19, 43, 15],
+
+	// 19
+	[3, 141, 113, 4, 142, 114],
+	[3, 70, 44, 11, 71, 45],
+	[17, 47, 21, 4, 48, 22],
+	[9, 39, 13, 16, 40, 14],
+
+	// 20
+	[3, 135, 107, 5, 136, 108],
+	[3, 67, 41, 13, 68, 42],
+	[15, 54, 24, 5, 55, 25],
+	[15, 43, 15, 10, 44, 16],
+
+	// 21
+	[4, 144, 116, 4, 145, 117],
+	[17, 68, 42],
+	[17, 50, 22, 6, 51, 23],
+	[19, 46, 16, 6, 47, 17],
+
+	// 22
+	[2, 139, 111, 7, 140, 112],
+	[17, 74, 46],
+	[7, 54, 24, 16, 55, 25],
+	[34, 37, 13],
+
+	// 23
+	[4, 151, 121, 5, 152, 122],
+	[4, 75, 47, 14, 76, 48],
+	[11, 54, 24, 14, 55, 25],
+	[16, 45, 15, 14, 46, 16],
+
+	// 24
+	[6, 147, 117, 4, 148, 118],
+	[6, 73, 45, 14, 74, 46],
+	[11, 54, 24, 16, 55, 25],
+	[30, 46, 16, 2, 47, 17],
+
+	// 25
+	[8, 132, 106, 4, 133, 107],
+	[8, 75, 47, 13, 76, 48],
+	[7, 54, 24, 22, 55, 25],
+	[22, 45, 15, 13, 46, 16],
+
+	// 26
+	[10, 142, 114, 2, 143, 115],
+	[19, 74, 46, 4, 75, 47],
+	[28, 50, 22, 6, 51, 23],
+	[33, 46, 16, 4, 47, 17],
+
+	// 27
+	[8, 152, 122, 4, 153, 123],
+	[22, 73, 45, 3, 74, 46],
+	[8, 53, 23, 26, 54, 24],
+	[12, 45, 15, 28, 46, 16],
+
+	// 28
+	[3, 147, 117, 10, 148, 118],
+	[3, 73, 45, 23, 74, 46],
+	[4, 54, 24, 31, 55, 25],
+	[11, 45, 15, 31, 46, 16],
+
+	// 29
+	[7, 146, 116, 7, 147, 117],
+	[21, 73, 45, 7, 74, 46],
+	[1, 53, 23, 37, 54, 24],
+	[19, 45, 15, 26, 46, 16],
+
+	// 30
+	[5, 145, 115, 10, 146, 116],
+	[19, 75, 47, 10, 76, 48],
+	[15, 54, 24, 25, 55, 25],
+	[23, 45, 15, 25, 46, 16],
+
+	// 31
+	[13, 145, 115, 3, 146, 116],
+	[2, 74, 46, 29, 75, 47],
+	[42, 54, 24, 1, 55, 25],
+	[23, 45, 15, 28, 46, 16],
+
+	// 32
+	[17, 145, 115],
+	[10, 74, 46, 23, 75, 47],
+	[10, 54, 24, 35, 55, 25],
+	[19, 45, 15, 35, 46, 16],
+
+	// 33
+	[17, 145, 115, 1, 146, 116],
+	[14, 74, 46, 21, 75, 47],
+	[29, 54, 24, 19, 55, 25],
+	[11, 45, 15, 46, 46, 16],
+
+	// 34
+	[13, 145, 115, 6, 146, 116],
+	[14, 74, 46, 23, 75, 47],
+	[44, 54, 24, 7, 55, 25],
+	[59, 46, 16, 1, 47, 17],
+
+	// 35
+	[12, 151, 121, 7, 152, 122],
+	[12, 75, 47, 26, 76, 48],
+	[39, 54, 24, 14, 55, 25],
+	[22, 45, 15, 41, 46, 16],
+
+	// 36
+	[6, 151, 121, 14, 152, 122],
+	[6, 75, 47, 34, 76, 48],
+	[46, 54, 24, 10, 55, 25],
+	[2, 45, 15, 64, 46, 16],
+
+	// 37
+	[17, 152, 122, 4, 153, 123],
+	[29, 74, 46, 14, 75, 47],
+	[49, 54, 24, 10, 55, 25],
+	[24, 45, 15, 46, 46, 16],
+
+	// 38
+	[4, 152, 122, 18, 153, 123],
+	[13, 74, 46, 32, 75, 47],
+	[48, 54, 24, 14, 55, 25],
+	[42, 45, 15, 32, 46, 16],
+
+	// 39
+	[20, 147, 117, 4, 148, 118],
+	[40, 75, 47, 7, 76, 48],
+	[43, 54, 24, 22, 55, 25],
+	[10, 45, 15, 67, 46, 16],
+
+	// 40
+	[19, 148, 118, 6, 149, 119],
+	[18, 75, 47, 31, 76, 48],
+	[34, 54, 24, 34, 55, 25],
+	[20, 45, 15, 61, 46, 16]
+];
+
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+	
+	var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+	
+	if (rsBlock === undefined) {
+		throw new Error("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel);
+	}
+
+	var length = rsBlock.length / 3;
+	
+	var list = [];
+	
+	for (var i = 0; i < length; i++) {
+
+		var count = rsBlock[i * 3 + 0];
+		var totalCount = rsBlock[i * 3 + 1];
+		var dataCount  = rsBlock[i * 3 + 2];
+
+		for (var j = 0; j < count; j++) {
+			list.push(new QRRSBlock(totalCount, dataCount) );	
+		}
+	}
+	
+	return list;
+};
+
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+
+	switch(errorCorrectLevel) {
+	case QRErrorCorrectLevel.L :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+	case QRErrorCorrectLevel.M :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+	case QRErrorCorrectLevel.Q :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+	case QRErrorCorrectLevel.H :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+	default :
+		return undefined;
+	}
+};
+
+module.exports = QRRSBlock;
+
+};
+var Q=req("index"),L=req("QRErrorCorrectLevel");window.LocalQR=function(text){var typeN=-1;var q;for(var t=2;t<=10;t++){try{q=new Q(t,L.M);q.addData(text);q.make();return q;}catch(e){}}return null;};})();
+</script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const today=new Date(),Y=today.getFullYear(),M=String(today.getMonth()+1).padStart(2,'0'),D=String(today.getDate()).padStart(2,'0');
+const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
+
+/* ---------- 설정 ---------- */
+const DEF={layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:['white','black','film','diary','festival','horror']};
+let S=Object.assign({},DEF);
+try{Object.assign(S,JSON.parse(localStorage.getItem('booth-set')||'{}'));}catch(e){}
+let logoImg=null;
+try{const d=localStorage.getItem('booth-logo');if(d){const im=new Image();im.onload=()=>{logoImg=im;renderIdle();};im.src=d;}}catch(e){}
+function saveS(){try{localStorage.setItem('booth-set',JSON.stringify(S));}catch(e){}}
+function toast(msg,ms=3500){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms);}
+
+let cur='idle';
+function show(v){cur=v;document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.v!==v);poke();}
+
+/* ---------- 화면 켜 두기 · 오래 안 만지면 처음으로 ---------- */
+let wake=null;
+async function keepAwake(){try{if('wakeLock' in navigator&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>wake=null);}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')keepAwake();});
+let idleT=0;
+function poke(){clearTimeout(idleT);if(['pick','frame','print'].includes(cur))idleT=setTimeout(()=>{if(['pick','frame','print'].includes(cur))goHome();},120000);}
+document.addEventListener('pointerdown',poke,{passive:true});
+
+/* ---------- 예시 그림(대기 화면 견본용) ---------- */
+const POSES=[[[-.3,.6],[.3,.6]],[[-1.3,-1.1],[1.3,1.1]],[[-2.4,-.4],[2.4,.4]],[[-.2,-1.6],[.6,.4]],[[-1.2,.4],[.2,-1.4]],[[-.6,.9],[.6,-.9]],[[-1.9,1.9],[1.9,-1.9]],[[-.1,.1],[.1,-.1]]];
+const PEOPLE=[{x:.38,s:1,shirt:'#2b2e35',skin:'#f1c9a8',hair:'#1f1a17'},{x:.63,s:.94,shirt:'#f4f4f2',skin:'#e9b993',hair:'#3b2a20',hat:'#8c929b'}];
+function drawScene(ctx,w,h,t,pose){
+  const g=ctx.createRadialGradient(w*.5,h*.4,h*.1,w*.5,h*.5,w*.7);g.addColorStop(0,'#d4d4d2');g.addColorStop(1,'#9a9a97');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  PEOPLE.forEach((p,i)=>{const bob=Math.sin(t*2+i)*h*.006,x=w*p.x+Math.sin(t*.7+i*2)*w*.006,u=h*p.s;const hy=h*.42+bob;
+    ctx.fillStyle=p.shirt;ctx.beginPath();ctx.ellipse(x,h*1.02,u*.24,u*.42,0,Math.PI,0);ctx.fill();
+    const arms=POSES[pose%POSES.length][i];ctx.strokeStyle=p.shirt;ctx.lineWidth=u*.07;ctx.lineCap='round';
+    [-1,1].forEach((sd,j)=>{const a=arms[j]*(i?-1:1);const sx=x+sd*u*.16,sy=h*.74;const ex=sx+Math.sin(a)*u*.22*sd*-1+sd*u*.05,ey=sy-Math.cos(a)*u*.26;
+      ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle=p.skin;ctx.beginPath();ctx.arc(ex,ey,u*.04,0,7);ctx.fill();});
+    ctx.fillStyle=p.skin;ctx.beginPath();ctx.ellipse(x,hy,u*.11,u*.135,0,0,7);ctx.fill();
+    ctx.fillStyle=p.hair;ctx.beginPath();ctx.ellipse(x,hy-u*.06,u*.12,u*.09,0,Math.PI,0);ctx.fill();
+    if(p.hat){ctx.fillStyle=p.hat;ctx.beginPath();ctx.ellipse(x,hy-u*.1,u*.13,u*.08,0,Math.PI,0);ctx.fill();ctx.fillRect(x-u*.16,hy-u*.11,u*.32,u*.03);}
+    ctx.fillStyle='#2a2522';[-1,1].forEach(sd=>{ctx.beginPath();ctx.arc(x+sd*u*.04,hy+u*.01,u*.012,0,7);ctx.fill();});
+    ctx.strokeStyle='#8a4b3c';ctx.lineWidth=u*.012;ctx.beginPath();ctx.arc(x,hy+u*.045,u*.035,.2,Math.PI-.2);ctx.stroke();});}
+
+function sceneShot(p){const c=document.createElement('canvas');c.width=960;c.height=640;const x=c.getContext('2d');x.translate(960,0);x.scale(-1,1);drawScene(x,960,640,p*.9,p);return c;}
+
+/* ---------- 카메라 ---------- */
+const cam=$('cam');let stream=null;
+async function openCamera(){
+  if(stream&&stream.active&&stream._facing===S.facing){return true;}
+  closeCamera();
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){camFail('이 브라우저는 카메라를 쓸 수 없어요. 아이패드는 Safari, 갤럭시 탭은 Chrome으로 열어 주세요. 주소가 https:// 로 시작해야 해요.');return false;}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:S.facing,width:{ideal:1920},height:{ideal:1080}}});
+    stream._facing=S.facing;cam.srcObject=stream;cam.classList.toggle('mirror',!!S.mirror);
+    await cam.play().catch(()=>{});
+    if(!cam.videoWidth)await new Promise(r=>{cam.onloadedmetadata=()=>r();setTimeout(r,2500);});
+    return true;
+  }catch(e){camFail(e&&e.name==='NotAllowedError'?'카메라 사용을 허용해 주세요. 아이패드: 설정 > Safari > 카메라 > 허용. 갤럭시: 주소창 왼쪽 자물쇠 > 권한 > 카메라 허용.':'카메라를 찾지 못했어요. 다른 앱이 카메라를 쓰고 있으면 닫고 다시 시도해 주세요.');return false;}
+}
+function closeCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}cam.srcObject=null;}
+function camFail(msg){$('camErrMsg').textContent=msg;$('camErr').hidden=false;}
+$('camRetry').onclick=e=>{e.stopPropagation();$('camErr').hidden=true;startShoot();};
+$('camHome').onclick=e=>{e.stopPropagation();goHome();};
+// 비디오 → 3:2 사진(거울 모드면 좌우 뒤집어 저장 = 화면에 보인 그대로)
+function grab(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');
+  const vw=cam.videoWidth||1280,vh=cam.videoHeight||720,r=w/h;let sw=vw,sh=vh,sx=0,sy=0;if(vw/vh>r){sw=vh*r;sx=(vw-sw)/2;}else{sh=vw/r;sy=(vh-sh)/2;}
+  if(S.mirror){x.translate(w,0);x.scale(-1,1);}x.drawImage(cam,sx,sy,sw,sh,0,0,w,h);return c;}
+
+/* ---------- 타임랩스 ---------- */
+let tlFrames=[],tlTimer=0;
+const wantVideo=()=>S.qr&&S.qrc==='video'&&!!S.gas&&typeof MediaRecorder!=='undefined';
+function tlStart(){tlFrames=[];clearInterval(tlTimer);if(!wantVideo())return;
+  tlTimer=setInterval(()=>{if(!cam.videoWidth||tlFrames.length>600)return;const c=grab(640,426);c.toBlob(b=>{if(b)tlFrames.push(b);},'image/jpeg',.72);},250);}
+function tlStop(){clearInterval(tlTimer);}
+function pickMime(){const list=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];for(const m of list){try{if(MediaRecorder.isTypeSupported(m))return m;}catch(e){}}return '';}
+async function makeTimelapse(onp){
+  if(!tlFrames.length)return null;const mime=pickMime();const c=document.createElement('canvas');c.width=640;c.height=426;const x=c.getContext('2d');
+  if(!c.captureStream)return null;const st=c.captureStream(24);let rec;try{rec=new MediaRecorder(st,mime?{mimeType:mime,videoBitsPerSecond:2500000}:undefined);}catch(e){return null;}
+  const chunks=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+  const done=new Promise(r=>rec.onstop=r);
+  const first=await createImageBitmap(tlFrames[0]);x.drawImage(first,0,0);rec.start(500);
+  for(let i=0;i<tlFrames.length;i++){const bm=await createImageBitmap(tlFrames[i]);x.drawImage(bm,0,0);bm.close&&bm.close();
+    if(i===tlFrames.length-1){x.fillStyle='rgba(0,0,0,.5)';x.fillRect(0,386,640,40);x.fillStyle='#fff';x.font='600 20px "Gothic A1",sans-serif';x.textAlign='center';x.fillText([S.text,DATE].filter(Boolean).join('  '),320,413);}
+    onp&&onp(i/tlFrames.length);await new Promise(r=>setTimeout(r,1000/24));}
+  await new Promise(r=>setTimeout(r,600));rec.stop();await done;
+  const type=(rec.mimeType||mime||'video/webm').split(';')[0];return new Blob(chunks,{type});}
+
+/* ---------- 촬영 ---------- */
+let shots=[],retakeLeft=1,picked=[],frame=0,timers=[],shooting=false;
+function clearTimers(){timers.forEach(clearTimeout);timers=[];}
+function later(ms,fn){timers.push(setTimeout(fn,ms));}
+async function startShoot(){if(shooting)return;shooting=true;shots=[];picked=[];show('shoot');$('camErr').hidden=true;$('count').textContent='';renderFilm();keepAwake();
+  const ok=await openCamera();if(!ok){shooting=false;return;}
+  $('rec').hidden=!wantVideo();tlStart();later(800,nextShot);}
+function renderFilm(){const f=$('film');f.innerHTML='';for(let i=0;i<S.shots;i++){if(shots[i]){const c=document.createElement('canvas');c.width=90;c.height=60;c.getContext('2d').drawImage(shots[i],0,0,90,60);f.appendChild(c);}else f.appendChild(document.createElement('span'));}}
+function nextShot(){const i=shots.length;if(i>=S.shots){tlStop();later(500,()=>{shooting=false;toPick();});return;}
+  $('shotNo').textContent=`${i+1} / ${S.shots}`;let n=+S.count;const tick=()=>{$('count').textContent=n||'';if(n===0){snap();return;}n--;later(1000,tick);};tick();}
+function snap(){shots.push(grab(1500,1000));const fl=$('flash');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');renderFilm();later(900,nextShot);}
+
+/* ---------- 고르기 ---------- */
+function toPick(){show('pick');const g=$('grid');g.className='grid'+(S.shots>6?' g8':'');g.innerHTML='';
+  shots.forEach((s,i)=>{const b=document.createElement('button');b.className='thumb';b.setAttribute('aria-label',`${i+1}번 사진`);const c=document.createElement('canvas');c.width=300;c.height=200;c.getContext('2d').drawImage(s,0,0,300,200);b.appendChild(c);
+    b.onclick=()=>{const k=picked.indexOf(i);if(k>=0)picked.splice(k,1);else if(picked.length<4)picked.push(i);renderPick();};g.appendChild(b);});
+  renderPick();}
+function renderPick(){const g=$('grid');[...g.children].forEach((b,i)=>{const k=picked.indexOf(i);b.classList.toggle('sel',k>=0);b.querySelector('b')?.remove();if(k>=0){const n=document.createElement('b');n.textContent=k+1;b.appendChild(n);}b.setAttribute('aria-pressed',k>=0);});
+  g.classList.toggle('full',picked.length===4);[...$('dots').children].forEach((d,i)=>d.classList.toggle('on',i<picked.length));
+  $('pickTitle').textContent=picked.length<4?'4장을 골라 주세요':'다 골랐어요';$('toFrame').disabled=picked.length<4;$('retake').hidden=retakeLeft<1;}
+$('retake').onclick=()=>{if(retakeLeft<1)return;retakeLeft--;startShoot();};
+$('toFrame').onclick=()=>toFrame();
+
+/* ---------- 틀 ---------- */
+const FRAMES=[
+  {key:'white',name:'모노 화이트',desc:'흰 바탕, 검은 글씨',bg:'#ffffff',ink:'#161616',chip:'#ffffff'},
+  {key:'black',name:'모노 블랙',desc:'검은 바탕, 흰 글씨',bg:'#161616',ink:'#ffffff',chip:'#161616'},
+  {key:'film',name:'필름',desc:'필름 구멍과 주황 날짜 도장',bg:'#1e1b17',ink:'#efe6d4',chip:'repeating-linear-gradient(180deg,#1e1b17 0 22%,#efe6d4 22% 30%)'},
+  {key:'diary',name:'다이어리',desc:'모눈종이, 테이프, 스티커',bg:'#fbfaf4',ink:'#2d3a4a',chip:'#fbfaf4 repeating-linear-gradient(0deg,#cfdce9 0 1px,transparent 1px 6px),repeating-linear-gradient(90deg,#cfdce9 0 1px,transparent 1px 6px)'},
+  {key:'festival',name:'축제',desc:'깃발 장식과 색종이',bg:'#fff4dc',ink:'#3b2414',chip:'linear-gradient(180deg,#f25f5c 0 12%,#ffd23f 12% 24%,#3bb4c1 24% 36%,#fff4dc 36%)'},
+  {key:'horror',name:'공포',desc:'핏빛 흘러내림과 거미줄',bg:'#120d0d',ink:'#efe2e2',chip:'linear-gradient(180deg,#a5121b 0 26%,#120d0d 26%)'}];
+const visFrames=()=>FRAMES.map((f,i)=>i).filter(i=>S.frames.includes(FRAMES[i].key));
+function ensureFrame(){const v=visFrames();if(!v.includes(frame))frame=v[0]??0;}
+// 축제: 위쪽 깃발 줄과 색종이
+const FEST=['#f25f5c','#ffd23f','#3bb4c1','#70c1b3','#a06cd5'];
+function bunting(ctx,x0,w){ctx.strokeStyle='#3b2414';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x0,8);ctx.quadraticCurveTo(x0+w/2,26,x0+w,8);ctx.stroke();
+  const n=Math.max(5,Math.round(w/48));for(let i=0;i<n;i++){const a=x0+(i+.1)*w/n,b=a+w/n*.8,t=(i+.5)/n,yy=8+9*4*t*(1-t);ctx.fillStyle=FEST[i%5];ctx.beginPath();ctx.moveTo(a,yy);ctx.lineTo(b,yy);ctx.lineTo((a+b)/2,yy+24);ctx.fill();}}
+function confetti(ctx,x0,w,H){for(let i=0;i<70;i++){const x=x0+((i*173)%w),y=(i*389)%H;ctx.save();ctx.translate(x,y);ctx.rotate(i);ctx.fillStyle=FEST[i%5];ctx.fillRect(-7,-3,14,6);ctx.restore();}}
+// 공포: 위쪽 핏빛 흘러내림, 모서리 거미줄
+function drips(ctx,x0,w){ctx.fillStyle='#a5121b';ctx.beginPath();ctx.moveTo(x0,0);ctx.lineTo(x0+w,0);ctx.lineTo(x0+w,14);
+  for(let x=x0+w;x>x0;x-=26){const len=(Math.sin(x*.37)+1)*22+(x%7)*4;ctx.lineTo(x-6,14);ctx.lineTo(x-8,14+len);ctx.arc(x-12,14+len,5,0,Math.PI);ctx.lineTo(x-17,14);}
+  ctx.lineTo(x0,14);ctx.fill();}
+function web(ctx,cx,cy,r,dir){ctx.strokeStyle='rgba(239,226,226,.45)';ctx.lineWidth=2;const a0=dir>0?-Math.PI/2:Math.PI,a1=a0+Math.PI/2;
+  for(let k=0;k<=5;k++){const a=a0+(a1-a0)*k/5;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.stroke();}
+  for(let ring=1;ring<=4;ring++){ctx.beginPath();for(let k=0;k<=5;k++){const a=a0+(a1-a0)*k/5,rr=r*ring/4.4;const px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;k?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.stroke();}}
+let qrUrl='';
+function drawQR(ctx,x,y,size){ctx.fillStyle='#fff';ctx.fillRect(x,y,size,size);
+  const q=qrUrl&&window.LocalQR?window.LocalQR(qrUrl):null;
+  if(q){const n=q.getModuleCount(),pad=2,m=size/(n+pad*2);ctx.fillStyle='#161616';
+    for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))ctx.fillRect(x+(c+pad)*m,y+(r+pad)*m,Math.ceil(m),Math.ceil(m));}
+  else{ctx.strokeStyle='#161616';ctx.lineWidth=4;ctx.strokeRect(x+6,y+6,size-12,size-12);ctx.fillStyle='#161616';ctx.font=`${size*.2}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('QR',x+size/2,y+size/2);}}
+function cover(ctx,img,x,y,w,h){const ir=img.width/img.height,cr=w/h;let sw=img.width,sh=img.height,sx=0,sy=0;if(ir>cr){sw=sh*cr;sx=(img.width-sw)/2;}else{sh=sw/cr;sy=(img.height-sh)/2;}ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);}
+function logoAt(ctx,x,y,w,h,fr){if(!logoImg)return;if(logoImg){const s=Math.min(w/logoImg.width,h/logoImg.height);ctx.drawImage(logoImg,x,y+(h-logoImg.height*s)/2,logoImg.width*s,logoImg.height*s);return;}
+  ctx.save();ctx.setLineDash([12,9]);ctx.strokeStyle=fr.ink;ctx.globalAlpha=.45;ctx.lineWidth=3;ctx.strokeRect(x,y,w,h);ctx.setLineDash([]);ctx.fillStyle=fr.ink;ctx.font=`600 ${h*.26}px "Gothic A1",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('로고 자리',x+w/2,y+h/2);ctx.restore();}
+function heart(ctx,x,y,s,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x,y+s*.35);ctx.bezierCurveTo(x-s*.9,y-s*.3,x-s*.35,y-s*.95,x,y-s*.45);ctx.bezierCurveTo(x+s*.35,y-s*.95,x+s*.9,y-s*.3,x,y+s*.35);ctx.fill();}
+function star(ctx,x,y,r,c){ctx.fillStyle=c;ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.45:r;ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}ctx.fill();}
+function tape(ctx,x,y,w,ang){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.fillStyle='rgba(250,220,120,.75)';ctx.fillRect(-w/2,-14,w,28);ctx.restore();}
+function footer(ctx,cx,y,fr,size,maxW){maxW=maxW||ctx.canvas.width-80;const font=fr.key==='diary'?'Gaegu':'"Gothic A1"';ctx.fillStyle=fr.ink;ctx.textAlign='center';ctx.textBaseline='middle';
+  const showDate=S.date&&fr.key!=='film';const lines=[S.text,showDate?DATE:''].filter(Boolean);
+  lines.forEach((l,i)=>{const isText=i===0&&S.text;ctx.font=isText?`${fr.key==='diary'?700:900} ${size}px ${font},sans-serif`:`${fr.key==='diary'?700:400} ${size*.6}px ${font},sans-serif`;
+    if(!isText&&fr.key!=='diary')ctx.letterSpacing='4px';{const w=ctx.measureText(l).width;if(w>maxW){ctx.save();ctx.translate(cx,0);ctx.scale(maxW/w,1);ctx.fillText(l,0,y+(i-(lines.length-1)/2)*size*1.05);ctx.restore();}else ctx.fillText(l,cx,y+(i-(lines.length-1)/2)*size*1.05);}ctx.letterSpacing='0px';});}
+function sprockets(ctx,x0,w,H,fr){ctx.fillStyle=fr.ink;for(let y=20;y<H-20;y+=46){[x0+10,x0+w-34].forEach(x=>{ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,24,26,5):ctx.rect(x,y,24,26);ctx.fill();});}}
+function stamp(ctx,x,y,size){if(!S.date)return;ctx.save();ctx.font=`700 ${size}px "Courier New",monospace`;ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillStyle='#ff8a2a';ctx.shadowColor='rgba(255,120,30,.8)';ctx.shadowBlur=size*.25;ctx.fillText(STAMP,x,y);ctx.restore();}
+function grid(ctx,W,H){ctx.strokeStyle='#d8e3ee';ctx.lineWidth=2;for(let x=0;x<W;x+=44){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}for(let y=0;y<H;y+=44){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}}
+function compose(cv,fi=frame,imgsIn){const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,fr=FRAMES[fi];ctx.fillStyle=fr.bg;ctx.fillRect(0,0,W,H);if(fr.key==='diary')grid(ctx,W,H);if(fr.key==='festival')confetti(ctx,0,W,H);
+  const imgs=imgsIn||picked.map(i=>shots[i]);const film=fr.key==='film',diary=fr.key==='diary';
+  const strip=(x0,sw,qr)=>{const ins=film?50:30;if(film)sprockets(ctx,x0,sw,H,fr);if(fr.key==='festival')bunting(ctx,x0,sw);if(fr.key==='horror'){drips(ctx,x0,sw);web(ctx,x0,H,150,1);web(ctx,x0+sw,H,150,-1);}
+    logoAt(ctx,x0+ins+5,50,190,110,fr);if(qr)drawQR(ctx,x0+sw-ins-165,35,165);
+    imgs.forEach((im,i)=>{const x=x0+ins,y=215+i*344,w=sw-ins*2,h=330;cover(ctx,im,x,y,w,h);
+      if(diary){tape(ctx,x+30,y+6,90,-.5);tape(ctx,x+w-30,y+6,90,.5);}
+      if(film&&i===3)stamp(ctx,x+w-16,y+h-12,30);});
+    if(diary){heart(ctx,x0+sw-60,1600,46,'#f28aa6');star(ctx,x0+58,1605,30,'#f6c344');}
+    footer(ctx,x0+sw/2,1655,fr,56,sw-(film?110:70));};
+  if(S.layout==='A'||W<1000){const sw=W<1000?W:W/2;(W<1000?[0]:[0,1]).forEach(k=>strip(k*sw,sw,S.qr&&!imgsIn&&qrOn));
+    if(W>=1000){ctx.fillStyle=fr.ink;ctx.globalAlpha=.75;[8,H-8].forEach(y=>{ctx.beginPath();ctx.arc(W/2,y,6,0,7);ctx.fill();});ctx.globalAlpha=1;}}
+  else{const ins=film?62:40;if(film)sprockets(ctx,0,W,H,fr);if(fr.key==='festival')bunting(ctx,0,W);if(fr.key==='horror'){drips(ctx,0,W);web(ctx,0,H,210,1);web(ctx,W,H,210,-1);}logoAt(ctx,ins+5,70,300,150,fr);if(S.qr&&!imgsIn&&qrOn)drawQR(ctx,W-ins-236,35,236);
+    const cw=(W-ins*2-21)/2;imgs.forEach((im,i)=>{const x=ins+(i%2)*(cw+21),y=285+Math.floor(i/2)*651;cover(ctx,im,x,y,cw,630);
+      if(diary){tape(ctx,x+cw/2,y+4,130,(i%2?.06:-.06));}if(film&&i===3)stamp(ctx,x+cw-18,y+618,38);});
+    if(diary){heart(ctx,W-90,1620,56,'#f28aa6');star(ctx,90,1625,38,'#f6c344');star(ctx,W-170,1660,22,'#8fc1e8');}
+    footer(ctx,W/2,1655,fr,74);}}
+
+let qrOn=false;
+function toFrame(){ensureFrame();show('frame');qrUrl='';qrOn=false;renderSwatches();compose($('prev1'));}
+function renderSwatches(){$('swatches').innerHTML='';visFrames().forEach(i=>{const f=FRAMES[i];const b=document.createElement('button');b.className='sw';b.setAttribute('aria-pressed',i===frame);
+  b.innerHTML=`<i style="background:${f.chip}"></i><span>${f.name}<small>${f.desc}</small></span>`;b.onclick=()=>{frame=i;renderSwatches();compose($('prev1'));};$('swatches').appendChild(b);});}
+$('toNext').onclick=()=>{if(S.qr&&S.gas)toUpload();else{qrOn=false;toPrint();}};
+
+/* ---------- 드라이브에 저장 · QR ---------- */
+function sidNow(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}-${Math.random().toString(36).slice(2,5)}`;}
+function blobToDataURL(b){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b);});}
+async function gasPost(obj,ms=60000){const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),ms);
+  try{const r=await fetch(S.gas,{method:'POST',body:JSON.stringify(obj),signal:ctl.signal,redirect:'follow'});const j=await r.json();if(!j.ok)throw new Error(j.error||'저장 실패');return j;}finally{clearTimeout(t);}}
+let lastSid='';
+async function toUpload(){show('upload');$('upTitle').textContent='사진을 저장하고 있어요';
+  const vid=wantVideo()&&tlFrames.length>4;
+  const st=['드라이브 폴더 만들기','사진 올리기',vid?'타임랩스 영상 만들고 올리기':null].filter(Boolean);
+  $('upSteps').innerHTML=st.map(s=>`<li>${s}</li>`).join('');const lis=[...$('upSteps').children];
+  const prog=(k,f=0)=>{lis.forEach((l,i)=>l.classList.toggle('on',i<=k));$('barFill').style.width=Math.round((k+f)/lis.length*100)+'%';};
+  prog(0);
+  try{
+    lastSid=sidNow();
+    const a=await gasPost({action:'folder',sid:lastSid},30000);qrUrl=a.folderUrl;qrOn=true;prog(1);
+    const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);
+    await gasPost({action:'file',sid:lastSid,name:`${lastSid}_네컷.jpg`,data:cv.toDataURL('image/jpeg',.92)});
+    if(vid){prog(2);const v=await makeTimelapse(f=>prog(2,f*.6));if(v){const ext=v.type.includes('mp4')?'mp4':'webm';
+      await gasPost({action:'file',sid:lastSid,name:`${lastSid}_타임랩스.${ext}`,data:await blobToDataURL(v)},120000);}}
+    $('barFill').style.width='100%';later(300,toPrint);
+  }catch(e){qrUrl='';qrOn=false;$('upTitle').textContent='저장하지 못해서 QR 없이 인쇄할게요';$('barFill').style.width='100%';
+    later(2200,toPrint);}
+}
+
+/* ---------- 인쇄 · 끝 ---------- */
+function toPrint(){show('print');compose($('prev2'));}
+function finalImage(){const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);return cv.toDataURL('image/jpeg',.95);}
+$('doPrint').onclick=()=>{const img=$('printImg');img.onload=()=>{setTimeout(()=>{try{window.print();}catch(e){}toDone(true);},150);};img.src=finalImage();};
+$('skipPrint').onclick=()=>toDone(false);
+function toDone(printed){show('done');$('doneTitle').textContent=printed?'사진이 나오고 있어요':'수고했어요';$('doneSub').hidden=!printed;
+  const q=$('doneQr');q.hidden=!qrOn;if(qrOn){const ctx=$('qrBig').getContext('2d');ctx.clearRect(0,0,300,300);drawQR(ctx,0,0,300);$('qrCaption').textContent=(wantVideo()&&tlFrames.length>4)?'휴대폰 카메라로 찍으면 사진과 영상을 받아요':'휴대폰 카메라로 찍으면 사진을 받아요';}
+  let left=30;const t=()=>{$('doneLeft').textContent=`${left}초 뒤 처음 화면으로 돌아가요`;if(left<=0){goHome();return;}left--;later(1000,t);};t();}
+function goHome(){clearTimers();tlStop();shooting=false;shots=[];picked=[];tlFrames=[];retakeLeft=1;frame=0;qrUrl='';qrOn=false;ensureFrame();show('idle');renderIdle();}
+$('home').onclick=goHome;
+
+/* ---------- 대기 ---------- */
+const SAMPLE=[0,1,3,6].map(sceneShot);
+function renderIdle(){$('idleMeta').textContent=[S.text,S.date?DATE:''].filter(Boolean).join('   ');
+  const lb=$('logoBox');lb.innerHTML='';if(logoImg){const im=new Image();im.src=logoImg.src;im.alt='로고';lb.appendChild(im);}else lb.innerHTML='<span class="mark">PHOTO</span>';
+  const keep=[shots,picked];shots=SAMPLE;picked=[0,1,2,3];const q=qrOn;qrOn=false;compose($('sample'),visFrames()[0]??0,SAMPLE);shots=keep[0];picked=keep[1];qrOn=q;}
+let taps=0,tapT=0;
+function logoTap(){const now=Date.now();taps=now-tapT<800?taps+1:1;tapT=now;if(taps>=5){taps=0;openPin();}}
+$('logoBox').onclick=e=>{e.stopPropagation();logoTap();};
+$('logoBox').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();logoTap();}};
+document.querySelector('.view.idle').onclick=e=>{if(!e.target.closest('.logo'))startShoot();};
+
+/* ---------- 비밀번호 ---------- */
+let pinBuf='';
+function openPin(){pinBuf='';$('pinMsg').textContent='';renderPin();$('pin').hidden=false;}
+function renderPin(){[...$('pinDots').children].forEach((d,i)=>d.classList.toggle('on',i<pinBuf.length));}
+$('pinPad').innerHTML=['1','2','3','4','5','6','7','8','9','닫기','0','←'].map(k=>`<button type="button" data-k="${k}">${k}</button>`).join('');
+$('pinPad').onclick=e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)return;
+  if(k==='닫기'){$('pin').hidden=true;return;}if(k==='←'){pinBuf=pinBuf.slice(0,-1);renderPin();return;}
+  if(pinBuf.length<4){pinBuf+=k;renderPin();}
+  if(pinBuf.length===4){if(pinBuf===String(S.pin||'0000')){$('pin').hidden=true;openSettings();}else{$('pinMsg').textContent='비밀번호가 달라요';pinBuf='';setTimeout(renderPin,250);}}};
+
+/* ---------- 교사 설정 ---------- */
+function syncForm(){$('ly'+S.layout).checked=true;$('optDate').checked=S.date;$('optQr').checked=S.qr;$(S.qrc==='video'?'qcV':'qcP').checked=true;$('optGas').value=S.gas||'';
+  $('optText').value=S.text;$('optCount').value=String(S.count);$('optShots').value=String(S.shots);$('optFacing').value=S.facing;$('optMirror').checked=!!S.mirror;$('optPin').value='';qrKindState();
+  $('optFrames').innerHTML=FRAMES.map(f=>`<label><input type="checkbox" name="frm" value="${f.key}" ${S.frames.includes(f.key)?'checked':''}>${f.name}</label>`).join('');$('frameErr').hidden=true;$('setErr').hidden=true;$('gasMsg').textContent='';}
+function qrKindState(){const on=$('optQr').checked;['qrKind','gasRow'].forEach(id=>{$(id).classList.toggle('dis',!on);$(id).querySelectorAll('input,button').forEach(i=>i.disabled=!on);});}
+function openSettings(){clearTimers();tlStop();syncForm();$('settings').hidden=false;}
+$('optQr').onchange=qrKindState;
+$('optLogo').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+  const s=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  const d=c.toDataURL('image/png');const im2=new Image();im2.onload=()=>{logoImg=im2;renderIdle();};im2.src=d;try{localStorage.setItem('booth-logo',d);}catch(e){toast('로고가 너무 커서 저장하지 못했어요');}};im.src=r.result;};r.readAsDataURL(f);};
+$('logoClear').onclick=()=>{logoImg=null;$('optLogo').value='';try{localStorage.removeItem('booth-logo');}catch(e){}renderIdle();};
+$('optFrames').onchange=()=>{$('frameErr').hidden=true;};
+$('gasTest').onclick=async()=>{const u=$('optGas').value.trim();$('gasMsg').className='note';$('gasMsg').textContent='확인하는 중…';
+  if(!/^https:\/\/script\.google\.com\/(a\/macros\/[^\/]+|macros)\/s\/[^\/]+\/exec$/.test(u)){$('gasMsg').className='err';$('gasMsg').textContent='주소는 script.google.com으로 시작하고 /exec로 끝나야 해요. 주소창에 바뀌어 보이는 script.googleusercontent.com 주소는 쓰면 안 돼요.';return;}
+  try{const r=await fetch(u+'?ping=1',{redirect:'follow'});const j=await r.json();if(j.ok){$('gasMsg').className='ok';$('gasMsg').textContent=`연결됐어요. 저장 폴더: ${j.folder||'포토부스'}`;}else throw 0;}
+  catch(e){$('gasMsg').className='err';$('gasMsg').textContent='연결하지 못했어요. 배포할 때 '액세스 권한: 모든 사용자'로 했는지 확인해 주세요. 학교 계정(교육청)은 바깥 기기 접속이 막힐 수 있어 개인 구글 계정을 권해요.';}};
+$('setCancel').onclick=()=>{$('settings').hidden=true;goHome();};
+$('fsBtn').onclick=()=>{const el=document.documentElement;try{(el.requestFullscreen||el.webkitRequestFullscreen).call(el);}catch(e){toast('이 기기는 홈 화면에 추가해서 열면 전체 화면이 돼요');}};
+$('setForm').onsubmit=e=>{e.preventDefault();const fs=[...document.querySelectorAll('#optFrames input:checked')].map(i=>i.value);if(!fs.length){$('frameErr').hidden=false;return;}
+  const pin=$('optPin').value.trim();if(pin&&!/^\d{4}$/.test(pin)){$('setErr').textContent='비밀번호는 숫자 4자리로 넣어 주세요.';$('setErr').hidden=false;return;}
+  const gas=$('optGas').value.trim();if($('optQr').checked&&!gas){$('setErr').textContent='QR을 쓰려면 저장 주소를 넣어 주세요. 없으면 QR을 꺼 주세요.';$('setErr').hidden=false;return;}
+  const facingChanged=S.facing!==$('optFacing').value;
+  S.frames=fs;S.layout=$('lyA').checked?'A':'B';S.date=$('optDate').checked;S.qr=$('optQr').checked;S.qrc=$('qcV').checked?'video':'photo';S.gas=gas;
+  S.text=$('optText').value.trim();S.count=+$('optCount').value;S.shots=+$('optShots').value;S.facing=$('optFacing').value;S.mirror=$('optMirror').checked;if(pin)S.pin=pin;
+  saveS();if(facingChanged)closeCamera();cam.classList.toggle('mirror',!!S.mirror);$('settings').hidden=true;toast('저장했어요');goHome();};
+
+show('idle');renderIdle();
+if(document.fonts)document.fonts.ready.then(()=>{if(cur==='idle')renderIdle();});
+document.addEventListener('gesturestart',e=>e.preventDefault());
+})();
+</script>
+</body>
+</html>
