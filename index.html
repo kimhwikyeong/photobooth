@@ -148,7 +148,7 @@ body{background:var(--wall);color:var(--ink);font-family:var(--f);-webkit-user-s
   html,body{margin:0!important;padding:0!important;width:100%}
   #printArea{width:100%;margin:0;padding:0}
   #printArea img{display:block;width:100%;height:auto;margin:0;page-break-inside:avoid;break-inside:avoid}
-  .pband{display:none!important}
+  .pband,.qBadge,.toast{display:none!important}
 }
 @media (prefers-reduced-motion:reduce){.rec i,.flash.on{animation:none}.bar i,.thumb canvas{transition:none}}
 /* ---------- 대기 화면 그림 4종 ---------- */
@@ -267,7 +267,6 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
 </style>
 </head>
 <body>
-<span class="qBadge" id="qBadge" hidden></span>
 <div class="pband" id="pband" hidden><span class="pdot"></span><span id="pbandT">앞 팀 사진이 나오는 중이에요</span></div>
 <div class="rotate">태블릿을 가로로 돌려 주세요</div>
 <div class="scr" id="scr"><div class="inner">
@@ -2096,7 +2095,6 @@ const qAll=()=>qTx('readonly',st=>st.getAll());
 const qDel=id=>qTx('readwrite',st=>st.delete(id));
 let qCount=0;
 async function qStatus(){try{qCount=(await qTx('readonly',st=>st.count()))||0;}catch(e){qCount=0;}
-  const b=$('qBadge');if(b){b.hidden=!qCount;b.textContent=`올릴 파일 ${qCount}`;}
   const m=$('poolMsg');if(m)m.textContent=`미리 만든 폴더 ${poolGet().length}개 · 태블릿에 보관 중인 파일 ${qCount}개`;}
 let flushing=false;
 async function flushQueue(force){if(flushing||!S.gas)return;if(!force&&(cur==='shoot'||!navigator.onLine))return;flushing=true;
