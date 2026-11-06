@@ -445,7 +445,7 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
       <fieldset id="upRow"><legend><span class="lab">올리는 때</span></legend>
         <div style="display:grid;gap:.8cqw">
         <div class="opts"><label><input type="radio" name="upMode" value="now" id="upModeN">찍고 바로 올리기</label><label><input type="radio" name="upMode" value="later" id="upModeL">인터넷이 될 때 올리기</label></div>
-        <p class="note">「인터넷이 될 때 올리기」: 미리 만든 폴더의 QR을 바로 넣고, 사진은 태블릿에 모아 두었다가 인터넷이 되면 저절로 올려요. 프린터에 직접 연결해 인터넷이 없을 때 쓰세요. 공유기가 있을 때도 그대로 쓸 수 있어요.</p>
+        <p class="note">「인터넷이 될 때 올리기」: 미리 만든 폴더의 QR을 바로 넣고, 사진은 태블릿에 모아 두었다가 인터넷이 되면 저절로 올려요. 프린터에 직접 연결해 인터넷이 없을 때 쓰세요. 공유기가 있을 때도 그대로 쓸 수 있어요. 폴더는 6개씩 한꺼번에 만들고, 중간에 설정을 닫아도 인터넷이 되면 첫 화면에서 계속 채워요.</p>
         <div class="row2"><label>미리 만들 폴더 <select id="optPoolN"><option value="50">50개</option><option value="100">100개</option><option value="150">150개</option><option value="200">200개</option></select></label>
         <button type="button" class="btn small" id="poolFill">폴더 미리 만들기</button><button type="button" class="btn small" id="qFlush">지금 올리기</button></div>
         <span class="note" id="poolMsg"></span></div></fieldset>
@@ -2103,12 +2103,23 @@ async function flushQueue(force){if(flushing||!S.gas)return;if(!force&&(cur==='s
   try{const items=await qAll();for(const it of items){if(!force&&cur==='shoot')break;
       await gasPost({action:'file',sid:it.sid,name:it.name,data:await blobToDataURL(it.blob)},180000);await qDel(it.id);await qStatus();}}
   catch(e){}finally{flushing=false;}await qStatus();}
-let filling=false;
-async function fillPool(target,onp){if(filling||!S.gas)return poolGet().length;filling=true;
-  try{let list=poolGet();while(list.length<target){const sid=sidNow()+'-'+list.length;const a=await gasPost({action:'folder',sid},30000);if(!a||!a.folderUrl)break;list=poolGet();list.push({sid,url:a.folderUrl});poolSet(list);onp&&onp(list.length,target);}
-    return list.length;}finally{filling=false;if(!onp)qStatus();}}
+let filling=false,fillN=0,batchOK=null;
+function poolPush(items,onp,target){const list=poolGet();items.forEach(x=>list.push(x));poolSet(list);onp&&onp(list.length,target);}
+async function fillPool(target,onp){if(filling||!S.gas)return poolGet().length;filling=true;let fail=0,inflight=0;
+  const need=k=>Math.max(0,target-poolGet().length-inflight);
+  const one=async()=>{const sid=sidNow()+'-'+(fillN++);const a=await gasPost({action:'folder',sid},30000);if(a&&a.folderUrl)poolPush([{sid,url:a.folderUrl}],onp,target);else throw 0;};
+  try{
+    // 1) 한 번에 여러 개 (새 Code.gs). 첫 묶음은 혼자 보내서 되는지 확인
+    const batch=async n=>{const sids=Array.from({length:n},()=>sidNow()+'-'+(fillN++));inflight+=n;
+      try{const a=await gasPost({action:'folders',sids},90000);if(a&&Array.isArray(a.folders)&&a.folders.length){batchOK=true;poolPush(a.folders,onp,target);}else{batchOK=false;throw 0;}}finally{inflight-=n;}};
+    if(batchOK!==false&&need()>0){try{await batch(Math.min(10,need()));}catch(e){if(batchOK!==true)batchOK=false;else fail++;}}
+    if(batchOK){await Promise.all(Array.from({length:5},async()=>{while(need()>0&&fail<3){try{await batch(Math.min(10,need()));}catch(e){fail++;}}}));}
+    // 2) 예전 Code.gs: 하나씩 6개 동시에
+    else{if(need()>0)await one().catch(()=>fail++);
+      await Promise.all(Array.from({length:6},async()=>{while(need()>0&&fail<3){inflight++;try{await one();}catch(e){fail++;}finally{inflight--;}}}));}
+    return poolGet().length;}finally{filling=false;if(!onp)qStatus();}}
 function poolTarget(){return +S.poolN||100;}
-setInterval(()=>{if(S.qr&&S.gas){flushQueue();if(S.upMode==='later'&&cur==='idle'&&navigator.onLine&&poolGet().length<Math.min(20,poolTarget()))fillPool(Math.min(20,poolTarget())).catch(()=>{});}},30000);
+setInterval(()=>{if(S.qr&&S.gas){flushQueue();if(S.upMode==='later'&&cur==='idle'&&navigator.onLine&&poolGet().length<poolTarget())fillPool(poolTarget()).catch(()=>{});}},30000);
 addEventListener('online',()=>setTimeout(()=>flushQueue(),1500));
 async function toKeep(){const my=RUN;show('upload');$('upTitle').textContent='사진을 정리하고 있어요';
   const vid=wantVideo()&&tlFrames.length>4;const st=['QR 준비하기','사진 보관하기',vid?'타임랩스 영상 만들기':null].filter(Boolean);
