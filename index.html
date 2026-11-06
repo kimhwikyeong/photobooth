@@ -261,9 +261,13 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
 .keys .kok{background:var(--ink);color:var(--wall);font-size:1.8cqw}
 .upNote{margin-top:1cqw;font-weight:700}
 
+.qBadge{position:fixed;right:calc(env(safe-area-inset-right,0px) + 8px);bottom:calc(env(safe-area-inset-bottom,0px) + 6px);z-index:7;font:600 11px var(--f);color:#888;background:rgba(255,255,255,.7);padding:2px 7px;border-radius:99px;pointer-events:none}
+.qBadge[hidden]{display:none}
+
 </style>
 </head>
 <body>
+<span class="qBadge" id="qBadge" hidden></span>
 <div class="pband" id="pband" hidden><span class="pdot"></span><span id="pbandT">앞 팀 사진이 나오는 중이에요</span></div>
 <div class="rotate">태블릿을 가로로 돌려 주세요</div>
 <div class="scr" id="scr"><div class="inner">
@@ -438,6 +442,13 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
         <div style="display:grid;gap:.8cqw"><input type="url" id="optGas" placeholder="https://script.google.com/macros/s/…/exec" inputmode="url" autocapitalize="off" spellcheck="false">
         <div class="row2"><button type="button" class="btn small" id="gasTest">연결 시험</button><span id="gasMsg" class="note"></span></div>
         <p class="note">구글 Apps Script로 만든 '웹 앱' 주소예요. 사진은 내 구글 드라이브 '포토부스' 폴더에 저장되고, QR은 그 사진의 링크가 돼요. QR을 쓰려면 인터넷이 되는 Wi-Fi가 필요해요.</p></div></fieldset>
+      <fieldset id="upRow"><legend><span class="lab">올리는 때</span></legend>
+        <div style="display:grid;gap:.8cqw">
+        <div class="opts"><label><input type="radio" name="upMode" value="now" id="upModeN">찍고 바로 올리기</label><label><input type="radio" name="upMode" value="later" id="upModeL">인터넷이 될 때 올리기</label></div>
+        <p class="note">「인터넷이 될 때 올리기」: 미리 만든 폴더의 QR을 바로 넣고, 사진은 태블릿에 모아 두었다가 인터넷이 되면 저절로 올려요. 프린터에 직접 연결해 인터넷이 없을 때 쓰세요. 공유기가 있을 때도 그대로 쓸 수 있어요.</p>
+        <div class="row2"><label>미리 만들 폴더 <select id="optPoolN"><option value="50">50개</option><option value="100">100개</option><option value="150">150개</option><option value="200">200개</option></select></label>
+        <button type="button" class="btn small" id="poolFill">폴더 미리 만들기</button><button type="button" class="btn small" id="qFlush">지금 올리기</button></div>
+        <span class="note" id="poolMsg"></span></div></fieldset>
       <fieldset><legend><span class="lab">비밀번호</span></legend>
         <div class="opts"><input type="password" id="optPin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="새 숫자 4자리 (비우면 그대로)"></div></fieldset>
       <p class="note">설정은 이 태블릿에만 저장돼요. 처음 비밀번호는 0000이에요.</p>
@@ -2073,7 +2084,47 @@ function blobToDataURL(b){return new Promise((res,rej)=>{const r=new FileReader(
 async function gasPost(obj,ms=60000){const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),ms);
   try{const r=await fetch(S.gas,{method:'POST',body:JSON.stringify(obj),signal:ctl.signal,redirect:'follow'});const j=await r.json();if(!j.ok)throw new Error(j.error||'저장 실패');return j;}finally{clearTimeout(t);}}
 let lastSid='';
-async function toUpload(){const my=RUN;show('upload');$('upTitle').textContent='사진을 저장하고 있어요';
+/* ---------- 나중에 올리기: 미리 만든 폴더 + 태블릿 보관함 ---------- */
+const POOLK='booth-pool';
+function poolGet(){try{const o=JSON.parse(localStorage.getItem(POOLK)||'{}');return o.gas===S.gas&&Array.isArray(o.list)?o.list:[];}catch(e){return [];}}
+function poolSet(list){try{localStorage.setItem(POOLK,JSON.stringify({gas:S.gas,list}));}catch(e){}}
+let qdb=null;
+function qOpen(){if(qdb)return Promise.resolve(qdb);return new Promise((res,rej)=>{const r=indexedDB.open('booth-queue',1);r.onupgradeneeded=()=>r.result.createObjectStore('files',{keyPath:'id',autoIncrement:true});r.onsuccess=()=>{qdb=r.result;res(qdb);};r.onerror=()=>rej(r.error);});}
+async function qTx(mode,fn){const db=await qOpen();return new Promise((res,rej)=>{const t=db.transaction('files',mode),st=t.objectStore('files');let out;const r=fn(st);if(r)r.onsuccess=()=>{out=r.result;};t.oncomplete=()=>res(out);t.onerror=()=>rej(t.error);});}
+const qAdd=item=>qTx('readwrite',st=>st.add(item));
+const qAll=()=>qTx('readonly',st=>st.getAll());
+const qDel=id=>qTx('readwrite',st=>st.delete(id));
+let qCount=0;
+async function qStatus(){try{qCount=(await qTx('readonly',st=>st.count()))||0;}catch(e){qCount=0;}
+  const b=$('qBadge');if(b){b.hidden=!qCount;b.textContent=`올릴 파일 ${qCount}`;}
+  const m=$('poolMsg');if(m)m.textContent=`미리 만든 폴더 ${poolGet().length}개 · 태블릿에 보관 중인 파일 ${qCount}개`;}
+let flushing=false;
+async function flushQueue(force){if(flushing||!S.gas)return;if(!force&&(cur==='shoot'||!navigator.onLine))return;flushing=true;
+  try{const items=await qAll();for(const it of items){if(!force&&cur==='shoot')break;
+      await gasPost({action:'file',sid:it.sid,name:it.name,data:await blobToDataURL(it.blob)},180000);await qDel(it.id);await qStatus();}}
+  catch(e){}finally{flushing=false;}await qStatus();}
+let filling=false;
+async function fillPool(target,onp){if(filling||!S.gas)return poolGet().length;filling=true;
+  try{let list=poolGet();while(list.length<target){const sid=sidNow()+'-'+list.length;const a=await gasPost({action:'folder',sid},30000);if(!a||!a.folderUrl)break;list=poolGet();list.push({sid,url:a.folderUrl});poolSet(list);onp&&onp(list.length,target);}
+    return list.length;}finally{filling=false;if(!onp)qStatus();}}
+function poolTarget(){return +S.poolN||100;}
+setInterval(()=>{if(S.qr&&S.gas){flushQueue();if(S.upMode==='later'&&cur==='idle'&&navigator.onLine&&poolGet().length<Math.min(20,poolTarget()))fillPool(Math.min(20,poolTarget())).catch(()=>{});}},30000);
+addEventListener('online',()=>setTimeout(()=>flushQueue(),1500));
+async function toKeep(){const my=RUN;show('upload');$('upTitle').textContent='사진을 정리하고 있어요';
+  const vid=wantVideo()&&tlFrames.length>4;const st=['QR 준비하기','사진 보관하기',vid?'타임랩스 영상 만들기':null].filter(Boolean);
+  $('upSteps').innerHTML=st.map(s=>`<li>${s}</li>`).join('');const lis=[...$('upSteps').children];
+  const prog=(k,f=0)=>{lis.forEach((l,i)=>l.classList.toggle('on',i<=k));$('barFill').style.width=Math.round((k+f)/lis.length*100)+'%';};prog(0);
+  let list=poolGet(),f=list.shift();
+  if(f)poolSet(list);else{try{const sid=sidNow();const a=await gasPost({action:'folder',sid},8000);f={sid,url:a.folderUrl};}catch(e){f=null;}}
+  if(my!==RUN)return;
+  if(!f){qrUrl='';qrOn=false;$('upTitle').textContent='미리 만든 폴더가 없어서 QR 없이 인쇄할게요';$('barFill').style.width='100%';later(2200,toPrint);return;}
+  qrUrl=f.url;qrOn=true;lastSid=f.sid;prog(1);
+  try{const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;await new Promise(r=>withFonts(()=>{compose(cv);r();}));
+    const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));await qAdd({sid:f.sid,name:`${f.sid}_네컷.jpg`,blob:b,t:Date.now()});
+    if(vid){prog(2);const v=await makeTimelapse(x=>prog(2,x*.9));if(v){const ext=v.type.includes('mp4')?'mp4':'webm';await qAdd({sid:f.sid,name:`${f.sid}_타임랩스.${ext}`,blob:v,t:Date.now()});}}
+  }catch(e){}
+  if(my!==RUN)return;$('barFill').style.width='100%';qStatus();later(300,()=>{toPrint();setTimeout(()=>flushQueue(),4000);});}
+async function toUpload(){if(S.upMode==='later')return toKeep();const my=RUN;show('upload');$('upTitle').textContent='사진을 저장하고 있어요';
   const vid=wantVideo()&&tlFrames.length>4;
   const st=['드라이브 폴더 만들기','사진 올리기',vid?'타임랩스 영상 만들고 올리기':null].filter(Boolean);
   $('upSteps').innerHTML=st.map(s=>`<li>${s}</li>`).join('');const lis=[...$('upSteps').children];
@@ -2114,7 +2165,7 @@ $('doPrint').onclick=()=>{
   printAt=Date.now();const img=$('printImg');img.onload=()=>{setTimeout(()=>{try{window.print();}catch(e){}toDone(true);},150);};img.src=finalImage();};
 $('skipPrint').onclick=()=>toDone(false);
 function toDone(printed){show('done');$('doneTitle').textContent=printed?'사진이 나오고 있어요':'수고했어요';$('doneSub').hidden=!printed;
-  const q=$('doneQr');q.hidden=!qrOn;if(qrOn){const ctx=$('qrBig').getContext('2d');ctx.clearRect(0,0,300,300);drawQR(ctx,0,0,300);$('qrCaption').textContent=(wantVideo()&&tlFrames.length>4)?'휴대폰 카메라로 찍으면 사진과 영상을 받아요 · 링크는 일주일 동안 열려요':'휴대폰 카메라로 찍으면 사진을 받아요 · 링크는 일주일 동안 열려요';}
+  const q=$('doneQr');q.hidden=!qrOn;if(qrOn&&S.upMode==='later'){const ctx=$('qrBig').getContext('2d');ctx.clearRect(0,0,300,300);drawQR(ctx,0,0,300);$('qrCaption').textContent='휴대폰 카메라로 찍어 두세요 · 사진은 잠시 뒤에 올라가요 · 링크는 일주일 동안 열려요';}else if(qrOn){const ctx=$('qrBig').getContext('2d');ctx.clearRect(0,0,300,300);drawQR(ctx,0,0,300);$('qrCaption').textContent=(wantVideo()&&tlFrames.length>4)?'휴대폰 카메라로 찍으면 사진과 영상을 받아요 · 링크는 일주일 동안 열려요':'휴대폰 카메라로 찍으면 사진을 받아요 · 링크는 일주일 동안 열려요';}
   let left=30;const t=()=>{$('doneLeft').textContent=`${left}초 뒤 처음 화면으로 돌아가요`;if(left<=0){goHome();return;}left--;later(1000,t);};t();}
 function goHome(){RUN++;clearTimers();tlStop();shooting=false;photoMode='color';shots=[];picked=[];tlFrames=[];retakeLeft=1;frame=0;qrUrl='';qrOn=false;escMin='';$('escMin').textContent='눌러서 적기';$('escMin').classList.add('empty');$('kpad').hidden=true;curMission='';$('mcard').classList.remove('flip');closeGuide();ensureFrame();show('idle');renderIdle();}
 $('home').onclick=goHome;
@@ -2157,13 +2208,13 @@ $('pinPad').onclick=e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)retur
 /* ---------- 교사 설정 ---------- */
 function syncForm(){$('ly'+S.layout).checked=true;$('optDate').checked=S.date;$('optQr').checked=S.qr;$(S.qrc==='video'?'qcV':'qcP').checked=true;$('optGas').value=S.gas||'';
   $('optText').value=S.text;$('optCount').value=String(S.count);$('optShots').value=String(S.shots);$('optFacing').value=S.facing;$('optMirror').checked=!!S.mirror;$('optPin').value='';qrKindState();
-  ($('id'+{aperture:'Aperture',neon:'Neon',mission:'Mission',basic:'Basic'}[S.idle||'aperture'])||$('idAperture')).checked=true;$('optMissions').value=S.missions||'';$('optPrintMode').value=S.printMode||'auto';$('optFont').value=S.font||'auto';fontPrevUpd();missionRowState();
+  ($('id'+{aperture:'Aperture',neon:'Neon',mission:'Mission',basic:'Basic'}[S.idle||'aperture'])||$('idAperture')).checked=true;$('optMissions').value=S.missions||'';$('optPrintMode').value=S.printMode||'auto';($('upMode'+(S.upMode==='later'?'L':'N'))).checked=true;$('optPoolN').value=String(poolTarget());qStatus();$('optFont').value=S.font||'auto';fontPrevUpd();missionRowState();
   $('optFrames').innerHTML=FRAMES.map(f=>`<label><input type="checkbox" name="frm" value="${f.key}" ${S.frames.includes(f.key)?'checked':''}>${f.name}</label>`).join('');$('frameErr').hidden=true;$('setErr').hidden=true;$('gasMsg').textContent='';}
 function fontPrevUpd(){const v=$('optFont').value;const f=v==='auto'?FONTS.gothic:FONTS[v];$('fontPrev').style.fontFamily=f+',sans-serif';$('fontPrev').textContent=$('optText').value.trim()||'2026 중산제 · 2학년 8반';}
 $('optFont').onchange=fontPrevUpd;$('optText').addEventListener('input',fontPrevUpd);
 function missionRowState(){$('missionRow').classList.toggle('dis',!$('idMission').checked);}
 document.querySelectorAll('input[name="idle"]').forEach(r=>r.onchange=missionRowState);
-function qrKindState(){const on=$('optQr').checked;['qrKind','gasRow'].forEach(id=>{$(id).classList.toggle('dis',!on);$(id).querySelectorAll('input,button').forEach(i=>i.disabled=!on);});}
+function qrKindState(){const on=$('optQr').checked;['qrKind','gasRow','upRow'].forEach(id=>{$(id).classList.toggle('dis',!on);$(id).querySelectorAll('input,button,select').forEach(i=>i.disabled=!on);});}
 function openSettings(){clearTimers();tlStop();syncForm();$('settings').hidden=false;}
 $('optQr').onchange=qrKindState;
 $('optLogo').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
@@ -2171,6 +2222,10 @@ $('optLogo').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new Fil
   const d=c.toDataURL('image/png');const im2=new Image();im2.onload=()=>{logoImg=im2;renderIdle();};im2.src=d;try{localStorage.setItem('booth-logo',d);}catch(e){toast('로고가 너무 커서 저장하지 못했어요');}};im.src=r.result;};r.readAsDataURL(f);};
 $('logoClear').onclick=()=>{logoImg=null;$('optLogo').value='';try{localStorage.removeItem('booth-logo');}catch(e){}renderIdle();};
 $('optFrames').onchange=()=>{$('frameErr').hidden=true;};
+$('poolFill').onclick=async()=>{const g=$('optGas').value.trim();if(!g){$('poolMsg').textContent='저장 주소를 먼저 넣어 주세요';return;}S.gas=g;const n=+$('optPoolN').value||100;const b=$('poolFill');b.disabled=true;
+  try{const got=await fillPool(n,(k,t)=>{$('poolMsg').textContent=`폴더 만드는 중… ${k} / ${t}`;});await qStatus();$('poolMsg').textContent=got>=n?`폴더 ${got}개 준비 끝!`:`폴더 ${got}개까지 만들었어요. 인터넷을 확인하고 다시 눌러 주세요`;}
+  catch(e){$('poolMsg').textContent='폴더를 만들지 못했어요. 인터넷과 저장 주소를 확인해 주세요';}finally{b.disabled=false;}};
+$('qFlush').onclick=async()=>{if(!S.gas){S.gas=$('optGas').value.trim();}$('poolMsg').textContent='올리는 중…';await flushQueue(true);await qStatus();$('poolMsg').textContent=qCount?`아직 ${qCount}개 남았어요. 인터넷을 확인해 주세요`:'모두 올렸어요!';};
 $('gasTest').onclick=async()=>{const u=$('optGas').value.trim();$('gasMsg').className='note';$('gasMsg').textContent='확인하는 중…';
   if(!/^https:\/\/script\.google\.com\/(a\/macros\/[^\/]+|macros)\/s\/[^\/]+\/exec$/.test(u)){$('gasMsg').className='err';$('gasMsg').textContent='주소는 script.google.com으로 시작하고 /exec로 끝나야 해요. 주소창에 바뀌어 보이는 script.googleusercontent.com 주소는 쓰면 안 돼요.';return;}
   try{const r=await fetch(u+'?ping=1',{redirect:'follow'});const j=await r.json();if(j.ok){$('gasMsg').className='ok';$('gasMsg').textContent=`연결됐어요. 저장 폴더: ${j.folder||'포토부스'}`;}else throw 0;}
@@ -2184,14 +2239,14 @@ $('setForm').onsubmit=e=>{e.preventDefault();const fs=[...document.querySelector
   const gas=$('optGas').value.trim();if($('optQr').checked&&!gas){$('setErr').textContent='QR을 쓰려면 저장 주소를 넣어 주세요. 없으면 QR을 꺼 주세요.';$('setErr').hidden=false;return;}
   const facingChanged=S.facing!==$('optFacing').value;
   S.frames=fs;S.layout=$('lyA').checked?'A':'B';S.date=$('optDate').checked;S.qr=$('optQr').checked;S.qrc=$('qcV').checked?'video':'photo';S.gas=gas;
-  S.text=$('optText').value.trim();S.count=+$('optCount').value;S.shots=+$('optShots').value;S.facing=$('optFacing').value;S.mirror=$('optMirror').checked;if(pin)S.pin=pin;
-  S.idle=(document.querySelector('input[name="idle"]:checked')||{}).value||'aperture';S.font=$('optFont').value;S.printMode=$('optPrintMode').value;S.missions=$('optMissions').value.split(/\n/).map(t=>t.trim()).filter(Boolean).join('\n')||DEF_MISSIONS.join('\n');
+  S.text=$('optText').value.trim();S.count=+$('optCount').value||S.count||3;S.shots=+$('optShots').value||S.shots||6;S.facing=$('optFacing').value;S.mirror=$('optMirror').checked;if(pin)S.pin=pin;
+  S.idle=(document.querySelector('input[name="idle"]:checked')||{}).value||'aperture';S.font=$('optFont').value;S.printMode=$('optPrintMode').value;S.upMode=$('upModeL').checked?'later':'now';S.poolN=+$('optPoolN').value||100;S.missions=$('optMissions').value.split(/\n/).map(t=>t.trim()).filter(Boolean).join('\n')||DEF_MISSIONS.join('\n');
   saveS();if(facingChanged)closeCamera();cam.classList.toggle('mirror',!!S.mirror);$('settings').hidden=true;toast('저장했어요');goHome();};
 
 function fitScr(){const sc=$('scr'),cs=getComputedStyle(sc);const h=sc.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),w=sc.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
   const iw=Math.min(w,h*1.44);const inn=sc.querySelector('.inner');inn.style.width=iw+'px';}
 addEventListener('resize',fitScr);if(window.visualViewport)visualViewport.addEventListener('resize',fitScr);addEventListener('orientationchange',()=>setTimeout(fitScr,300));fitScr();
-show('idle');renderIdle();
+show('idle');renderIdle();qStatus();
 if(document.fonts)document.fonts.ready.then(()=>{if(cur==='idle')renderIdle();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 })();
