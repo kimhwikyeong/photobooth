@@ -425,6 +425,9 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
         <label>장수 <select id="optShots"><option value="6">6장</option><option value="8">8장</option></select></label>
         <label>카메라 <select id="optFacing"><option value="user">앞 카메라</option><option value="environment">뒤 카메라</option></select></label>
         <label><input type="checkbox" id="optMirror">거울처럼 좌우 뒤집기</label></div></fieldset>
+      <fieldset><legend><span class="lab">인쇄 방식</span></legend>
+        <div class="opts"><select id="optPrintMode"><option value="auto">자동 (아이패드는 공유 창, 갤럭시는 인쇄 창)</option><option value="share">공유 창 → 프린트 (종이 꽉 차게)</option><option value="page">브라우저 인쇄 창</option></select>
+        <span class="note">아이패드 사파리의 인쇄 창은 여백과 주소가 붙어서, 공유 창으로 사진 파일을 인쇄해요.</span></div></fieldset>
       <fieldset><legend><span class="lab">보일 틀</span></legend>
         <div><div class="opts" id="optFrames"></div><p class="err" id="frameErr" hidden>틀을 하나 이상 켜 주세요.</p></div></fieldset>
       <fieldset><legend><span class="lab">QR</span></legend>
@@ -2089,12 +2092,26 @@ async function toUpload(){const my=RUN;show('upload');$('upTitle').textContent='
 }
 
 /* ---------- 인쇄 · 끝 ---------- */
-function toPrint(){show('print');withFonts(()=>compose($('prev2')));}
+const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let printFile=null;
+function printMode(){const m=S.printMode||'auto';if(m!=='auto')return m;return IOS&&navigator.canShare?'share':'page';}
+function printHintUpd(){$('printHint').innerHTML=printMode()==='share'
+  ?'<b>공유 창</b>이 뜨면 아래로 내려 <b>프린트</b>를 누르고 → 프린터 <b>Canon SELPHY CP1500</b>, 용지 <b>엽서(100×148mm)</b>를 고른 뒤 「프린트」를 눌러 주세요.'
+  :'인쇄 창이 뜨면 프린터 <b>Canon SELPHY CP1500</b>, 용지 <b>엽서(100×148mm)</b>, 테두리 <b>없음</b>을 고르고 「인쇄」를 눌러 주세요.';}
+function toPrint(){show('print');printFile=null;printHintUpd();withFonts(()=>{compose($('prev2'));const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);
+  cv.toBlob(b=>{if(b)printFile=new File([b],`4cut-${Date.now()}.jpg`,{type:'image/jpeg'});},'image/jpeg',.95);});}
 function finalImage(){const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);return cv.toDataURL('image/jpeg',.95);}
 let printAt=0;
 function bandTick(){const left=70-Math.floor((Date.now()-printAt)/1000);const b=$('pband');const on=printAt&&left>0&&!['print','done'].includes(cur);b.hidden=!on;if(on)$('pbandT').textContent=`앞 팀 사진이 나오는 중이에요 · 순서대로 나와요 (약 ${left}초)`;}
 setInterval(bandTick,1000);
-$('doPrint').onclick=()=>{printAt=Date.now();const img=$('printImg');img.onload=()=>{setTimeout(()=>{try{window.print();}catch(e){}toDone(true);},150);};img.src=finalImage();};
+$('doPrint').onclick=()=>{
+  if(printMode()==='share'){
+    if(!printFile){toast('사진을 준비하고 있어요. 잠시 뒤 다시 눌러 주세요');return;}
+    const data={files:[printFile]};
+    if(!(navigator.canShare&&navigator.canShare(data))){S.printMode='page';printHintUpd();toast('이 기기는 공유 창 인쇄가 안 돼서 웹 인쇄로 바꿨어요. 다시 눌러 주세요',5000);return;}
+    navigator.share(data).then(()=>{printAt=Date.now();toDone(true);}).catch(e=>{if(e&&e.name==='AbortError')return;toast('공유 창을 열지 못했어요. 다시 눌러 주세요');});
+    return;}
+  printAt=Date.now();const img=$('printImg');img.onload=()=>{setTimeout(()=>{try{window.print();}catch(e){}toDone(true);},150);};img.src=finalImage();};
 $('skipPrint').onclick=()=>toDone(false);
 function toDone(printed){show('done');$('doneTitle').textContent=printed?'사진이 나오고 있어요':'수고했어요';$('doneSub').hidden=!printed;
   const q=$('doneQr');q.hidden=!qrOn;if(qrOn){const ctx=$('qrBig').getContext('2d');ctx.clearRect(0,0,300,300);drawQR(ctx,0,0,300);$('qrCaption').textContent=(wantVideo()&&tlFrames.length>4)?'휴대폰 카메라로 찍으면 사진과 영상을 받아요 · 링크는 일주일 동안 열려요':'휴대폰 카메라로 찍으면 사진을 받아요 · 링크는 일주일 동안 열려요';}
@@ -2140,7 +2157,7 @@ $('pinPad').onclick=e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)retur
 /* ---------- 교사 설정 ---------- */
 function syncForm(){$('ly'+S.layout).checked=true;$('optDate').checked=S.date;$('optQr').checked=S.qr;$(S.qrc==='video'?'qcV':'qcP').checked=true;$('optGas').value=S.gas||'';
   $('optText').value=S.text;$('optCount').value=String(S.count);$('optShots').value=String(S.shots);$('optFacing').value=S.facing;$('optMirror').checked=!!S.mirror;$('optPin').value='';qrKindState();
-  ($('id'+{aperture:'Aperture',neon:'Neon',mission:'Mission',basic:'Basic'}[S.idle||'aperture'])||$('idAperture')).checked=true;$('optMissions').value=S.missions||'';$('optFont').value=S.font||'auto';fontPrevUpd();missionRowState();
+  ($('id'+{aperture:'Aperture',neon:'Neon',mission:'Mission',basic:'Basic'}[S.idle||'aperture'])||$('idAperture')).checked=true;$('optMissions').value=S.missions||'';$('optPrintMode').value=S.printMode||'auto';$('optFont').value=S.font||'auto';fontPrevUpd();missionRowState();
   $('optFrames').innerHTML=FRAMES.map(f=>`<label><input type="checkbox" name="frm" value="${f.key}" ${S.frames.includes(f.key)?'checked':''}>${f.name}</label>`).join('');$('frameErr').hidden=true;$('setErr').hidden=true;$('gasMsg').textContent='';}
 function fontPrevUpd(){const v=$('optFont').value;const f=v==='auto'?FONTS.gothic:FONTS[v];$('fontPrev').style.fontFamily=f+',sans-serif';$('fontPrev').textContent=$('optText').value.trim()||'2026 중산제 · 2학년 8반';}
 $('optFont').onchange=fontPrevUpd;$('optText').addEventListener('input',fontPrevUpd);
@@ -2168,7 +2185,7 @@ $('setForm').onsubmit=e=>{e.preventDefault();const fs=[...document.querySelector
   const facingChanged=S.facing!==$('optFacing').value;
   S.frames=fs;S.layout=$('lyA').checked?'A':'B';S.date=$('optDate').checked;S.qr=$('optQr').checked;S.qrc=$('qcV').checked?'video':'photo';S.gas=gas;
   S.text=$('optText').value.trim();S.count=+$('optCount').value;S.shots=+$('optShots').value;S.facing=$('optFacing').value;S.mirror=$('optMirror').checked;if(pin)S.pin=pin;
-  S.idle=(document.querySelector('input[name="idle"]:checked')||{}).value||'aperture';S.font=$('optFont').value;S.missions=$('optMissions').value.split(/\n/).map(t=>t.trim()).filter(Boolean).join('\n')||DEF_MISSIONS.join('\n');
+  S.idle=(document.querySelector('input[name="idle"]:checked')||{}).value||'aperture';S.font=$('optFont').value;S.printMode=$('optPrintMode').value;S.missions=$('optMissions').value.split(/\n/).map(t=>t.trim()).filter(Boolean).join('\n')||DEF_MISSIONS.join('\n');
   saveS();if(facingChanged)closeCamera();cam.classList.toggle('mirror',!!S.mirror);$('settings').hidden=true;toast('저장했어요');goHome();};
 
 function fitScr(){const sc=$('scr'),cs=getComputedStyle(sc);const h=sc.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),w=sc.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
