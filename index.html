@@ -408,7 +408,7 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
 
   <div class="settings" id="settings" hidden>
     <form id="setForm" autocomplete="off">
-      <h3>교사 설정</h3>
+      <h3>교사 설정 <small id="appVer" style="font-weight:400;font-size:.6em;color:var(--ink-2)"></small></h3>
       <fieldset><legend><span class="lab">첫 화면</span></legend>
         <div class="opts"><label><input type="radio" name="idle" value="aperture" id="idAperture">카메라 조리개</label><label><input type="radio" name="idle" value="neon" id="idNeon">네온 간판</label><label><input type="radio" name="idle" value="mission" id="idMission">오늘의 미션 카드</label><label><input type="radio" name="idle" value="basic" id="idBasic">견본 사진</label></div></fieldset>
       <fieldset id="missionRow"><legend><span class="lab">미션 목록</span></legend>
@@ -429,8 +429,17 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
         <label>카메라 <select id="optFacing"><option value="user">앞 카메라</option><option value="environment">뒤 카메라</option></select></label>
         <label><input type="checkbox" id="optMirror">거울처럼 좌우 뒤집기</label></div></fieldset>
       <fieldset><legend><span class="lab">인쇄 방식</span></legend>
-        <div class="opts"><select id="optPrintMode"><option value="auto">자동 (아이패드는 공유 창, 갤럭시는 인쇄 창)</option><option value="share">공유 창 → 프린트 (종이 꽉 차게)</option><option value="page">브라우저 인쇄 창</option></select>
+        <div class="opts"><select id="optPrintMode"><option value="auto">브라우저 인쇄 창 (기본)</option><option value="share">공유 창 → 프린트 (사진 파일로)</option></select>
         <span class="note">아이패드 사파리의 인쇄 창은 여백과 주소가 붙어서, 공유 창으로 사진 파일을 인쇄해요.</span></div></fieldset>
+      <fieldset><legend><span class="lab">인쇄 맞춤</span></legend>
+        <div style="display:grid;gap:.8cqw">
+        <div class="row2"><b style="min-width:7em">웹앱 인쇄</b><label>크기 <input type="number" id="optpScale" min="90" max="115" step="0.1" style="width:5.5em"> %</label>
+        <label>좌우 <input type="number" id="optpDx" min="-8" max="8" step="0.125" style="width:5em"> mm</label>
+        <label>위아래 <input type="number" id="optpDy" min="-8" max="8" step="0.125" style="width:5em"> mm</label></div>
+        <div class="row2"><b style="min-width:7em">사진 앱 인쇄</b><label>크기 <input type="number" id="optqScale" min="90" max="115" step="0.1" style="width:5.5em"> %</label>
+        <label>좌우 <input type="number" id="optqDx" min="-8" max="8" step="0.125" style="width:5em"> mm</label>
+        <label>위아래 <input type="number" id="optqDy" min="-8" max="8" step="0.125" style="width:5em"> mm</label></div>
+        <p class="note">기본값은 셀피 CP1500 테두리 없음 시험 인쇄에서 잰 값이에요. 웹앱 인쇄 92.5%·좌우 −0.375·위아래 −0.375(갤럭시 탭 + Mopria 테두리 없음), 사진 앱 인쇄 92.5%·위아래 −0.5(아이패드). 셀피가 가장자리를 잘라 내는 만큼을 미리 줄여 둬서, 반으로 잘랐을 때 양옆 여백이 같아져요. 「인쇄 크기 확인」 파일에서 찾은 값이 있으면 그 값을 넣어요. 웹앱 인쇄 = 「인쇄하기」로 뽑을 때. 사진 앱 인쇄 = QR로 받거나 저장한 사진을 사진 앱(갤러리)에서 뽑을 때 — QR로 올라가는 사진에 이 값이 들어가요. 값은 태블릿마다 따로 저장돼요. +는 오른쪽·아래로 옮겨요.</p></div></fieldset>
       <fieldset><legend><span class="lab">보일 틀</span></legend>
         <div><div class="opts" id="optFrames"></div><p class="err" id="frameErr" hidden>틀을 하나 이상 켜 주세요.</p></div></fieldset>
       <fieldset><legend><span class="lab">QR</span></legend>
@@ -1730,9 +1739,14 @@ const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
 /* ---------- 설정 ---------- */
 const ALL_FRAMES=['white','black','film','diary','festival','horror','night','crowe'];
 const DEF_MISSIONS=['셋이 똑같은 표정 짓기','선생님 흉내 내기','과학실 실험 포즈','가장 놀란 얼굴','손가락 하트 릴레이','서로 볼 콕','슬로모션 점프','눈 감고 브이','세상에서 제일 진지한 얼굴','별 보는 척하기','탈출 성공 만세','좀비처럼 다가가기'];
-const DEF={layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n')};
+const APP_VER='11월 9일 13:36 수정본';
+const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n')};
 let S=Object.assign({},DEF);
 let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);}catch(e){}
+{const eq=(P,a,b,c)=>(+(S[P+'Scale']??100))===a&&(+(S[P+'Dx']||0))===b&&(+(S[P+'Dy']||0))===c;
+ /* 예전 기본값을 그대로 쓰던 기기는 시험 인쇄로 맞춘 새 값으로 */
+ if(eq('q',100,0,0)||eq('q',95.9,0,0)||eq('q',92.5,0,-0.5)||eq('q',94,0,-0.5)){S.qScale=92.5;S.qDx=0;S.qDy=-0.5;}
+ if(eq('p',100,0,0)||eq('p',92.5,-0.5,-0.75)){S.pScale=92.5;S.pDx=-0.375;S.pDy=-0.375;}}
 // 새로 생긴 틀은 기존 설정에도 켜서 보여 줌
 if(SAVED.frames){const known=SAVED.known||['white','black','film','diary','festival','horror'];ALL_FRAMES.forEach(k=>{if(!known.includes(k)&&!S.frames.includes(k))S.frames.push(k);});S.known=ALL_FRAMES.slice();}
 const missionList=()=>String(S.missions||'').split(/\n/).map(t=>t.trim()).filter(Boolean);
@@ -2129,7 +2143,7 @@ async function toKeep(){const my=RUN;show('upload');$('upTitle').textContent='�
   if(!f){qrUrl='';qrOn=false;$('upTitle').textContent='미리 만든 폴더가 없어서 QR 없이 인쇄할게요';$('barFill').style.width='100%';later(2200,toPrint);return;}
   qrUrl=f.url;qrOn=true;lastSid=f.sid;prog(1);
   try{const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;await new Promise(r=>withFonts(()=>{compose(cv);r();}));
-    const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));await qAdd({sid:f.sid,name:`${f.sid}_네컷.jpg`,blob:b,t:Date.now()});
+    const b=await new Promise(r=>calib(cv,'photo').toBlob(r,'image/jpeg',.92));await qAdd({sid:f.sid,name:`${f.sid}_네컷.jpg`,blob:b,t:Date.now()});
     if(vid){prog(2);const v=await makeTimelapse(x=>prog(2,x*.9));if(v){const ext=v.type.includes('mp4')?'mp4':'webm';await qAdd({sid:f.sid,name:`${f.sid}_타임랩스.${ext}`,blob:v,t:Date.now()});}}
   }catch(e){}
   if(my!==RUN)return;$('barFill').style.width='100%';qStatus();later(300,()=>{toPrint();setTimeout(()=>flushQueue(),4000);});}
@@ -2143,7 +2157,7 @@ async function toUpload(){if(S.upMode==='later')return toKeep();const my=RUN;sho
     lastSid=sidNow();
     const a=await gasPost({action:'folder',sid:lastSid},30000);if(my!==RUN)return;qrUrl=a.folderUrl;qrOn=true;prog(1);
     const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);
-    await gasPost({action:'file',sid:lastSid,name:`${lastSid}_네컷.jpg`,data:cv.toDataURL('image/jpeg',.92)});
+    await gasPost({action:'file',sid:lastSid,name:`${lastSid}_네컷.jpg`,data:calib(cv,'photo').toDataURL('image/jpeg',.92)});
     if(vid){prog(2);const v=await makeTimelapse(f=>prog(2,f*.6));if(v){const ext=v.type.includes('mp4')?'mp4':'webm';
       await gasPost({action:'file',sid:lastSid,name:`${lastSid}_타임랩스.${ext}`,data:await blobToDataURL(v)},120000);}}
     if(my!==RUN)return;$('barFill').style.width='100%';later(300,toPrint);
@@ -2154,13 +2168,21 @@ async function toUpload(){if(S.upMode==='later')return toKeep();const my=RUN;sho
 /* ---------- 인쇄 · 끝 ---------- */
 const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 let printFile=null;
-function printMode(){const m=S.printMode||'auto';if(m!=='auto')return m;return IOS&&navigator.canShare?'share':'page';}
+function printMode(){const m=S.printMode||'auto';return m==='share'?'share':'page';}
 function printHintUpd(){$('printHint').innerHTML=printMode()==='share'
   ?'<b>공유 창</b>이 뜨면 아래로 내려 <b>프린트</b>를 누르고 → 프린터 <b>Canon SELPHY CP1500</b>, 용지 <b>엽서(100×148mm)</b>를 고른 뒤 「프린트」를 눌러 주세요.'
   :'인쇄 창이 뜨면 프린터 <b>Canon SELPHY CP1500</b>, 용지 <b>엽서(100×148mm)</b>, 테두리 <b>없음</b>을 고르고 「인쇄」를 눌러 주세요.';}
 function toPrint(){show('print');printFile=null;printHintUpd();withFonts(()=>{compose($('prev2'));const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);
-  cv.toBlob(b=>{if(b)printFile=new File([b],`4cut-${Date.now()}.jpg`,{type:'image/jpeg'});},'image/jpeg',.95);});}
-function finalImage(){const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);return cv.toDataURL('image/jpeg',.95);}
+  const pc=calib(cv,'photo');pc.toBlob(b=>{if(b)printFile=new File([b],`4cut-${Date.now()}.jpg`,{type:'image/jpeg'});},'image/jpeg',.95);});}
+/* 인쇄 맞춤: 프린터마다 가장자리 잘림·밀림이 달라서 교사가 보정 */
+const PX=11.81; // 1mm = 11.81px (300dpi)
+function calib(src,kind){const P=kind==='photo'?'q':'p';const sc=(+S[P+'Scale']||100)/100,dx=(+S[P+'Dx']||0)*PX,dy=(+S[P+'Dy']||0)*PX;if(sc===1&&!dx&&!dy)return src;
+  const o=document.createElement('canvas');o.width=1181;o.height=1748;const x=o.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,1181,1748);
+  if(sc<1)x.drawImage(src,0,0,1181,1748);/* 줄어든 바깥 띠는 틀 가장자리 색으로 채움(어차피 잘려 나가는 자리) */
+  const w=1181*sc,h=1748*sc;x.drawImage(src,(1181-w)/2+dx,(1748-h)/2+dy,w,h);return o;}
+function printCanvas(){const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);return calib(cv,'page');}
+function finalImage(){return printCanvas().toDataURL('image/jpeg',.95);}
+
 let printAt=0;
 function bandTick(){const left=70-Math.floor((Date.now()-printAt)/1000);const b=$('pband');const on=printAt&&left>0&&!['print','done'].includes(cur);b.hidden=!on;if(on)$('pbandT').textContent=`앞 팀 사진이 나오는 중이에요 · 순서대로 나와요 (약 ${left}초)`;}
 setInterval(bandTick,1000);
@@ -2217,7 +2239,7 @@ $('pinPad').onclick=e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)retur
 /* ---------- 교사 설정 ---------- */
 function syncForm(){$('ly'+S.layout).checked=true;$('optDate').checked=S.date;$('optQr').checked=S.qr;$(S.qrc==='video'?'qcV':'qcP').checked=true;$('optGas').value=S.gas||'';
   $('optText').value=S.text;$('optCount').value=String(S.count);$('optShots').value=String(S.shots);$('optFacing').value=S.facing;$('optMirror').checked=!!S.mirror;$('optPin').value='';qrKindState();
-  ($('id'+{aperture:'Aperture',neon:'Neon',mission:'Mission',basic:'Basic'}[S.idle||'aperture'])||$('idAperture')).checked=true;$('optMissions').value=S.missions||'';$('optPrintMode').value=S.printMode||'auto';($('upMode'+(S.upMode==='later'?'L':'N'))).checked=true;$('optPoolN').value=String(poolTarget());qStatus();$('optFont').value=S.font||'auto';fontPrevUpd();missionRowState();
+  ($('id'+{aperture:'Aperture',neon:'Neon',mission:'Mission',basic:'Basic'}[S.idle||'aperture'])||$('idAperture')).checked=true;$('optMissions').value=S.missions||'';$('optPrintMode').value=S.printMode||'auto';['p','q'].forEach(P=>{$('opt'+P+'Scale').value=S[P+'Scale']||100;$('opt'+P+'Dx').value=S[P+'Dx']||0;$('opt'+P+'Dy').value=S[P+'Dy']||0;});($('upMode'+(S.upMode==='later'?'L':'N'))).checked=true;$('optPoolN').value=String(poolTarget());qStatus();$('optFont').value=S.font||'auto';fontPrevUpd();missionRowState();
   $('optFrames').innerHTML=FRAMES.map(f=>`<label><input type="checkbox" name="frm" value="${f.key}" ${S.frames.includes(f.key)?'checked':''}>${f.name}</label>`).join('');$('frameErr').hidden=true;$('setErr').hidden=true;$('gasMsg').textContent='';}
 function fontPrevUpd(){const v=$('optFont').value;const f=v==='auto'?FONTS.gothic:FONTS[v];$('fontPrev').style.fontFamily=f+',sans-serif';$('fontPrev').textContent=$('optText').value.trim()||'2026 중산제 · 2학년 8반';}
 $('optFont').onchange=fontPrevUpd;$('optText').addEventListener('input',fontPrevUpd);
@@ -2249,13 +2271,13 @@ $('setForm').onsubmit=e=>{e.preventDefault();const fs=[...document.querySelector
   const facingChanged=S.facing!==$('optFacing').value;
   S.frames=fs;S.layout=$('lyA').checked?'A':'B';S.date=$('optDate').checked;S.qr=$('optQr').checked;S.qrc=$('qcV').checked?'video':'photo';S.gas=gas;
   S.text=$('optText').value.trim();S.count=+$('optCount').value||S.count||3;S.shots=+$('optShots').value||S.shots||6;S.facing=$('optFacing').value;S.mirror=$('optMirror').checked;if(pin)S.pin=pin;
-  S.idle=(document.querySelector('input[name="idle"]:checked')||{}).value||'aperture';S.font=$('optFont').value;S.printMode=$('optPrintMode').value;S.upMode=$('upModeL').checked?'later':'now';S.poolN=+$('optPoolN').value||100;S.missions=$('optMissions').value.split(/\n/).map(t=>t.trim()).filter(Boolean).join('\n')||DEF_MISSIONS.join('\n');
+  S.idle=(document.querySelector('input[name="idle"]:checked')||{}).value||'aperture';S.font=$('optFont').value;S.printMode=$('optPrintMode').value;['p','q'].forEach(P=>{S[P+'Scale']=Math.min(115,Math.max(90,+$('opt'+P+'Scale').value||100));S[P+'Dx']=Math.max(-8,Math.min(8,+$('opt'+P+'Dx').value||0));S[P+'Dy']=Math.max(-8,Math.min(8,+$('opt'+P+'Dy').value||0));});S.upMode=$('upModeL').checked?'later':'now';S.poolN=+$('optPoolN').value||100;S.missions=$('optMissions').value.split(/\n/).map(t=>t.trim()).filter(Boolean).join('\n')||DEF_MISSIONS.join('\n');
   saveS();if(facingChanged)closeCamera();cam.classList.toggle('mirror',!!S.mirror);$('settings').hidden=true;toast('저장했어요');goHome();};
 
 function fitScr(){const sc=$('scr'),cs=getComputedStyle(sc);const h=sc.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),w=sc.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
   const iw=Math.min(w,h*1.44);const inn=sc.querySelector('.inner');inn.style.width=iw+'px';}
 addEventListener('resize',fitScr);if(window.visualViewport)visualViewport.addEventListener('resize',fitScr);addEventListener('orientationchange',()=>setTimeout(fitScr,300));fitScr();
-show('idle');renderIdle();qStatus();
+show('idle');renderIdle();qStatus();try{$('appVer').textContent=APP_VER;}catch(e){}
 if(document.fonts)document.fonts.ready.then(()=>{if(cur==='idle')renderIdle();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 })();
