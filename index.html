@@ -374,6 +374,7 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
     <div class="side">
       <h2 class="h">완성했어요</h2>
       <p class="sub" id="printHint">인쇄 창이 뜨면 프린터 <b>Canon SELPHY CP1500</b>, 용지 <b>엽서(100×148mm)</b>, 테두리 <b>없음</b>을 고르고 '인쇄'를 눌러 주세요.</p>
+      <p id="printDiag" style="margin:0;font-size:1.05cqw;color:var(--ink-2);letter-spacing:.02em"></p>
       <div class="btns"><button class="btn go" id="doPrint">인쇄하기</button><button class="btn" id="skipPrint">인쇄 없이 끝내기</button></div>
     </div>
   </section>
@@ -1739,7 +1740,7 @@ const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
 /* ---------- 설정 ---------- */
 const ALL_FRAMES=['white','black','film','diary','festival','horror','night','crowe'];
 const DEF_MISSIONS=['셋이 똑같은 표정 짓기','선생님 흉내 내기','과학실 실험 포즈','가장 놀란 얼굴','손가락 하트 릴레이','서로 볼 콕','슬로모션 점프','눈 감고 브이','세상에서 제일 진지한 얼굴','별 보는 척하기','탈출 성공 만세','좀비처럼 다가가기'];
-const APP_VER='11월 9일 13:36 수정본';
+const APP_VER='11월 9일 21:10 수정본';
 const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n')};
 let S=Object.assign({},DEF);
 let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);}catch(e){}
@@ -2166,10 +2167,11 @@ async function toUpload(){if(S.upMode==='later')return toKeep();const my=RUN;sho
 }
 
 /* ---------- 인쇄 · 끝 ---------- */
+function printDiag(){const P=printMode()==='share'?'q':'p';const el=$('printDiag');if(el)el.textContent=`${APP_VER} · ${printMode()==='share'?'사진 앱 인쇄':'웹앱 인쇄'} 맞춤 ${+S[P+'Scale']||100}% · 좌우 ${+S[P+'Dx']||0} · 위아래 ${+S[P+'Dy']||0}mm`;}
 const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 let printFile=null;
 function printMode(){const m=S.printMode||'auto';return m==='share'?'share':'page';}
-function printHintUpd(){$('printHint').innerHTML=printMode()==='share'
+function printHintUpd(){setTimeout(printDiag,0);$('printHint').innerHTML=printMode()==='share'
   ?'<b>공유 창</b>이 뜨면 아래로 내려 <b>프린트</b>를 누르고 → 프린터 <b>Canon SELPHY CP1500</b>, 용지 <b>엽서(100×148mm)</b>를 고른 뒤 「프린트」를 눌러 주세요.'
   :'인쇄 창이 뜨면 프린터 <b>Canon SELPHY CP1500</b>, 용지 <b>엽서(100×148mm)</b>, 테두리 <b>없음</b>을 고르고 「인쇄」를 눌러 주세요.';}
 function toPrint(){show('print');printFile=null;printHintUpd();withFonts(()=>{compose($('prev2'));const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);
@@ -2178,8 +2180,18 @@ function toPrint(){show('print');printFile=null;printHintUpd();withFonts(()=>{co
 const PX=11.81; // 1mm = 11.81px (300dpi)
 function calib(src,kind){const P=kind==='photo'?'q':'p';const sc=(+S[P+'Scale']||100)/100,dx=(+S[P+'Dx']||0)*PX,dy=(+S[P+'Dy']||0)*PX;if(sc===1&&!dx&&!dy)return src;
   const o=document.createElement('canvas');o.width=1181;o.height=1748;const x=o.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,1181,1748);
-  if(sc<1)x.drawImage(src,0,0,1181,1748);/* 줄어든 바깥 띠는 틀 가장자리 색으로 채움(어차피 잘려 나가는 자리) */
-  const w=1181*sc,h=1748*sc;x.drawImage(src,(1181-w)/2+dx,(1748-h)/2+dy,w,h);return o;}
+  const w=Math.round(1181*sc),h=Math.round(1748*sc),ox=Math.round((1181-w)/2+dx),oy=Math.round((1748-h)/2+dy);
+  const t=document.createElement('canvas');t.width=w;t.height=h;t.getContext('2d').drawImage(src,0,0,w,h);
+  x.drawImage(t,ox,oy);
+  /* 바깥 띠는 그림 맨 가장자리 한 줄을 늘려 채움(겹쳐 보이는 그림 없이, 잘려 나갈 자리) */
+  const R=ox+w,B=oy+h;
+  if(ox>0)x.drawImage(t,0,0,1,h,0,oy,ox,h);
+  if(R<1181)x.drawImage(t,w-1,0,1,h,R,oy,1181-R,h);
+  if(oy>0)x.drawImage(t,0,0,w,1,ox,0,w,oy);
+  if(B<1748)x.drawImage(t,0,h-1,w,1,ox,B,w,1748-B);
+  const cp=(sx,sy,dx0,dy0,dw,dh)=>{if(dw>0&&dh>0)x.drawImage(t,sx,sy,1,1,dx0,dy0,dw,dh);};
+  cp(0,0,0,0,ox,oy);cp(w-1,0,R,0,1181-R,oy);cp(0,h-1,0,B,ox,1748-B);cp(w-1,h-1,R,B,1181-R,1748-B);
+  return o;}
 function printCanvas(){const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);return calib(cv,'page');}
 function finalImage(){return printCanvas().toDataURL('image/jpeg',.95);}
 
