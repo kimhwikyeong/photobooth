@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=5,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -148,6 +148,8 @@ body{background:var(--wall);color:var(--ink);font-family:var(--f);-webkit-user-s
   html,body{margin:0!important;padding:0!important;width:100%}
   #printArea{width:100%;margin:0;padding:0}
   #printArea img{display:block;width:100%;height:auto;margin:0;page-break-inside:avoid;break-inside:avoid}
+  #printArea img+img{break-before:page;page-break-before:always}
+  #printArea img[hidden]{display:none!important}
   .pband,.qBadge,.toast{display:none!important}
 }
 @media (prefers-reduced-motion:reduce){.rec i,.flash.on{animation:none}.bar i,.thumb canvas{transition:none}}
@@ -311,6 +313,7 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
 .thumbToggle{display:inline-flex;gap:.5cqw;align-items:center;font-size:1.3cqw;margin-bottom:.8cqw}
 .frmThumb[hidden]{display:none}
 #optFrames:not(:has(.frmThumb:not([hidden]))) .frmItem{width:auto;flex-direction:row}
+html,body,.settings{touch-action:pan-x pan-y pinch-zoom}
 
 </style>
 </head>
@@ -492,7 +495,7 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
         <label>위아래 <input type="number" id="optqDy" min="-8" max="8" step="0.125" style="width:5em"> mm</label></div>
         <p class="note">기본값은 셀피 CP1500 테두리 없음 시험 인쇄에서 잰 값이에요. 웹앱 인쇄 92.5%·좌우 −0.375·위아래 −0.375(갤럭시 탭 + Mopria 테두리 없음), 사진 앱 인쇄 92.5%·위아래 −0.5(아이패드). 셀피가 가장자리를 잘라 내는 만큼을 미리 줄여 둬서, 반으로 잘랐을 때 양옆 여백이 같아져요. 「인쇄 크기 확인」 파일에서 찾은 값이 있으면 그 값을 넣어요. 웹앱 인쇄 = 「인쇄하기」로 뽑을 때. 사진 앱 인쇄 = QR로 받거나 저장한 사진을 사진 앱(갤러리)에서 뽑을 때 — QR로 올라가는 사진에 이 값이 들어가요. 값은 태블릿마다 따로 저장돼요. +는 오른쪽·아래로 옮겨요.</p></div></fieldset>
       <fieldset><legend><span class="lab">보일 틀</span></legend>
-        <div><label class="thumbToggle"><input type="checkbox" id="optThumbs">미리보기 보기</label><div class="opts" id="optFrames"></div><p class="err" id="frameErr" hidden>틀을 하나 이상 켜 주세요.</p></div></fieldset>
+        <div><label class="thumbToggle"><input type="checkbox" id="optThumbs">미리보기 보기</label><div class="opts" id="optFrames"></div><p class="err" id="frameErr" hidden>틀을 하나 이상 켜 주세요.</p><div class="row2" style="margin-top:.8cqw"><button type="button" class="btn small" id="testPrint">체크한 틀 시험 인쇄</button><span class="note">견본 사진으로 체크한 틀 × 체크한 배치만큼 한 장씩 인쇄해요.</span></div></div></fieldset>
       <fieldset class="cf"><legend><span class="lab">틀 추가</span></legend>
         <div class="cfBox">
           <details open><summary>PNG 그림으로 추가</summary>
@@ -1807,7 +1810,7 @@ const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
 /* ---------- 설정 ---------- */
 const ALL_FRAMES=['white','black','film','diary','festival','horror','night','crowe'];
 const DEF_MISSIONS=['셋이 똑같은 표정 짓기','선생님 흉내 내기','과학실 실험 포즈','가장 놀란 얼굴','손가락 하트 릴레이','서로 볼 콕','슬로모션 점프','눈 감고 브이','세상에서 제일 진지한 얼굴','별 보는 척하기','탈출 성공 만세','좀비처럼 다가가기'];
-const APP_VER='11월 10일 11:25 수정본 (2)';
+const APP_VER='11월 10일 12:00 수정본';
 const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n')};
 let S=Object.assign({},DEF);
 let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);}catch(e){}
@@ -1829,7 +1832,10 @@ const FONTS={gothic:'"Gothic A1"',jua:'"Jua"',gaegu:'"Gaegu"',dodum:'"Gowun Dodu
   nanumpen:'"Nanum Pen Script"',gamja:'"Gamja Flower"',poorstory:'"Poor Story"',himelody:'"Hi Melody"',cute:'"Cute Font"',
   singleday:'"Single Day"',yeonsung:'"Yeon Sung"',stylish:'"Stylish"',songmyung:'"Song Myung"',dokdo:'"East Sea Dokdo"',
   notosans:'"Noto Sans KR"',ibmplex:'"IBM Plex Sans KR"',orbit:'"Orbit"',gugi:'"Gugi"',bagel:'"Bagel Fat One"',gasoek:'"Gasoek One"',kirang:'"Kirang Haerang"',bwpicture:'"Black And White Picture"',nanumbrush:'"Nanum Brush Script"',dokdo2:'"Dokdo"',notoserif:'"Noto Serif KR"',myeongjo:'"Nanum Myeongjo"',hahmlet:'"Hahmlet"'};
-const loadFont=k=>{try{if(document.fonts&&FONTS[k])return Promise.all(['400','700','900'].map(w=>document.fonts.load(`${w} 40px ${FONTS[k]}`,'가나다ABC123').catch(()=>{})));}catch(e){}return Promise.resolve();};
+const FONT_SAMPLE='가나다라마바사아자차카타파하ABCabc0123456789·:.';
+/* 구글 한글 글꼴은 글자 묶음별로 나눠 받아서, 실제로 쓸 글자를 넣어 불러와야 한꺼번에 바뀜 */
+const loadFont=(k,txt)=>{try{if(document.fonts&&FONTS[k]){const t=FONT_SAMPLE+(txt||'');return Promise.all(['400','700','900'].map(w=>document.fonts.load(`${w} 40px ${FONTS[k]}`,t).catch(()=>{})));}}catch(e){}return Promise.resolve();};
+function fontText(){const t=[S.text||'',DATE||''];FRAMES.forEach(f=>{const b=f.spec&&f.spec.bottom;if(b)t.push(b.title||'',b.titleStrip||'');if(f.spec&&f.spec.timeBox)t.push(f.spec.timeBox.label||'',f.spec.timeBox.unit||'');});return t.join('');}
 /* 문구: Enter로 두 줄까지 */
 const textLines=t=>String(t==null?S.text:t||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,2);
 let FITMIN=1;
@@ -1841,7 +1847,7 @@ function fontFor(fr){if(S.font&&S.font!=='auto'&&FONTS[S.font])return FONTS[S.fo
 let fontsReady=Promise.resolve();
 if(document.fonts&&document.fonts.load){fontsReady=Promise.all([...['400 40px "Gothic A1"','900 40px "Gothic A1"','700 40px "Gaegu"','40px "Jua"','40px "Gowun Dodum"','400 40px "Gowun Batang"','700 40px "Gowun Batang"'].map(f=>document.fonts.load(f,'가나다ABC123').catch(()=>{})),loadFont(S.font)]).then(()=>{});}
 function fontsNeeded(){const ks=new Set(['gothic']);if(S.font&&S.font!=='auto')ks.add(S.font);FRAMES.forEach(f=>{if(f.spec&&f.spec.font)ks.add(f.spec.font);});return [...ks];}
-function refreshFonts(){fontsReady=Promise.all([fontsReady,...fontsNeeded().map(loadFont)]).then(()=>{});return fontsReady;}
+function refreshFonts(){const t=fontText();fontsReady=Promise.all([fontsReady,...fontsNeeded().map(k=>loadFont(k,t))]).then(()=>{});return fontsReady;}
 const withFonts=fn=>Promise.race([refreshFonts(),new Promise(r=>setTimeout(r,2500))]).then(fn);
 /* 글꼴이 늦게 도착하면 보이는 그림을 다시 그림(어디는 되고 어디는 안 되던 문제) */
 let rfT=null;
@@ -1863,7 +1869,7 @@ function filtered(img,f){if(!img||!f||f==='none')return img;let m=FCACHE.get(img
   x.putImageData(d,0,0);m[f]=c;return c;}
 
 let cur='idle';
-function show(v){cur=v;$('scr').dataset.v=v;$('scr').dataset.idle=S.idle||'';document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.v!==v);poke();try{bandTick();}catch(e){}}
+function show(v){cur=v;try{zoomAllow(v==='pick'||!$('settings').hidden);}catch(e){}$('scr').dataset.v=v;$('scr').dataset.idle=S.idle||'';document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.v!==v);poke();try{bandTick();}catch(e){}}
 
 /* ---------- 화면 켜 두기 · 오래 안 만지면 처음으로 ---------- */
 let wake=null;
@@ -2078,6 +2084,9 @@ function composeSpec(ctx,W,H,fr,imgs,qr){const sp=fr.spec,ext=sp.ext||{},mm=W/10
     // 바탕 그림(손자국 등)
     (sp.background||[]).forEach(b=>{const im=ASSET[b.src];if(!im)return;const w=col.w*b.size/100*(A?.45:.27),h=w*im.height/im.width;ctx.save();ctx.globalAlpha=b.opacity??.5;ctx.translate(col.x+col.w*b.x/100+w/2,H*b.y/100+h/2);ctx.rotate((b.rotate||0)*Math.PI/180);ctx.drawImage(im,-w/2,-h/2,w,h);ctx.restore();});
     specTopBand(ctx,col.x,col.w,H,sp.topBand);
+    /* 띠 그림(위·아래, 가로로 이어 붙임): ext.bands=[{src,where:'top'|'bottom',heightMm,offsetMm}] */
+    (ext.bands||[]).forEach(bd=>{const im=ASSET[bd.src];if(!im)return;const h=(bd.heightMm||5)*mm*(A?1:1.25),w=im.width*h/im.height,off=(bd.offsetMm||0)*mm;const y=bd.where==='bottom'?H-h-off:off;
+      ctx.save();ctx.beginPath();ctx.rect(col.x,0,col.w,H);ctx.clip();for(let x=col.x;x<col.x+col.w;x+=w-1)ctx.drawImage(im,x,y,w,h);ctx.restore();});
     // 사진 칸
     const rects=[];if(A){const w=col.w-ins*2,h=(H-top-botR-gap*3)/4;for(let i=0;i<4;i++)rects.push({x:col.x+ins,y:top+i*(h+gap),w,h});}
     else{const cw=(col.w-ins*2-gap)/2,ch=(H-top-botR-gap)/2;for(let i=0;i<4;i++)rects.push({x:col.x+ins+(i%2)*(cw+gap),y:top+Math.floor(i/2)*(ch+gap),w:cw,h:ch});}
@@ -2256,7 +2265,7 @@ async function toUpload(){if(S.upMode==='later')return toKeep();const my=RUN;sho
 }
 
 /* ---------- 인쇄 · 끝 ---------- */
-function printDiag(){const P=printMode()==='share'?'q':'p';const el=$('printDiag');if(el)el.textContent=`${APP_VER} · ${printMode()==='share'?'사진 앱 인쇄':'웹앱 인쇄'} 맞춤 ${+S[P+'Scale']||100}% · 좌우 ${+S[P+'Dx']||0} · 위아래 ${+S[P+'Dy']||0}mm`;}
+function printDiag(){const c=CAL[printMode()==='share'?'q':'p'];const el=$('printDiag');if(el)el.textContent=`${APP_VER} · ${printMode()==='share'?'아이패드 · 공유 창 인쇄':'갤럭시 · 인쇄 창'} 맞춤 ${c.sc}% · 좌우 ${c.dx} · 위아래 ${c.dy}mm`;}
 const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 let printFile=null;
 function printMode(){return IOS&&navigator.canShare?'share':'page';}/* 아이패드·아이폰 = 공유 창, 갤럭시 등 = 인쇄 창 (자동) */
@@ -2267,7 +2276,9 @@ function toPrint(){show('print');printFile=null;printHintUpd();withFonts(()=>{co
   const pc=calib(cv,'photo');pc.toBlob(b=>{if(b)printFile=new File([b],`4cut-${Date.now()}.jpg`,{type:'image/jpeg'});},'image/jpeg',.95);});}
 /* 인쇄 맞춤: 프린터마다 가장자리 잘림·밀림이 달라서 교사가 보정 */
 const PX=11.81; // 1mm = 11.81px (300dpi)
-function calib(src,kind){const P=kind==='photo'?'q':'p';const sc=(+S[P+'Scale']||100)/100,dx=(+S[P+'Dx']||0)*PX,dy=(+S[P+'Dy']||0)*PX;if(sc===1&&!dx&&!dy)return src;
+/* 11월 9일 시험 인쇄로 맞춘 값(고정): 갤럭시 탭 웹앱 인쇄 / 아이패드 공유 창(사진) 인쇄 — 셀피 CP1500 엽서 테두리 없음 */
+const CAL={p:{sc:92.5,dx:-0.375,dy:-0.375},q:{sc:92.5,dx:0,dy:-0.5}};
+function calib(src,kind){const c=CAL[kind==='photo'?'q':'p'];const sc=c.sc/100,dx=c.dx*PX,dy=c.dy*PX;if(sc===1&&!dx&&!dy)return src;
   const o=document.createElement('canvas');o.width=1181;o.height=1748;const x=o.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,1181,1748);
   const w=Math.round(1181*sc),h=Math.round(1748*sc),ox=Math.round((1181-w)/2+dx),oy=Math.round((1748-h)/2+dy);
   const t=document.createElement('canvas');t.width=w;t.height=h;t.getContext('2d').drawImage(src,0,0,w,h);
@@ -2382,6 +2393,23 @@ function composePng(ctx,W,H,fr,imgs,qr){const o=fr.opts||{},A=S.layout==='A',fon
   else{drawPhotos([[40,285,540,630],[601,285,540,630],[40,936,540,630],[601,936,540,630]]);if(pic)ctx.drawImage(pic,0,0,W,H);
     if(o.logo!==false)logoAt(ctx,45,70,300,150,fr);if(o.date!==false)dateUnderLogo(ctx,45,70,150,false,fr,font);if(qr&&o.qr!==false)drawQR(ctx,905,35,236);if(o.text!==false)footer(ctx,W/2,1655,fr,74,W-100);}}
 
+/* ---------- 교사: 체크한 틀만 시험 인쇄 ---------- */
+function testPrintList(){const ks=[...document.querySelectorAll('#optFrames input:checked')].map(i=>i.value);const ls=['A','B'].filter(k=>$('ly'+k).checked);const out=[];
+  ks.forEach(k=>{const fi=FRAMES.findIndex(f=>f.key===k);if(fi<0)return;ls.forEach(L=>{const fr=FRAMES[fi];if(fr.png&&!fr.png[L])return;out.push([fi,L]);});});return out;}
+function testPrintLabel(){const n=testPrintList().length;$('testPrint').textContent=n?`체크한 틀 시험 인쇄 (${n}장)`:'체크한 틀 시험 인쇄';$('testPrint').disabled=!n;}
+document.addEventListener('change',e=>{if(e.target.closest&&(e.target.closest('#optFrames')||e.target.name==='layout'))testPrintLabel();});
+$('testPrint').onclick=async()=>{const L=testPrintList();if(!L.length)return;const b=$('testPrint');b.disabled=true;b.textContent='준비 중…';
+  const keep={text:S.text,font:S.font,layout:S.layout,date:S.date},kp=[shots,picked,qrOn,photoMode];
+  S.text=textLines($('optText').value).join('\n');S.font=$('optFont').value;S.date=$('optDate').checked;shots=SAMPLE;picked=[0,1,2,3];qrOn=false;photoMode='color';
+  await Promise.race([refreshFonts(),new Promise(r=>setTimeout(r,4000))]);
+  const pages=[];for(const [fi,Ly] of L){S.layout=Ly;const fr=FRAMES[fi];photoMode=fr.spec&&fr.spec.photo&&fr.spec.photo.filter==='gray'?'gray':'color';const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv,fi,SAMPLE);pages.push(cv);}
+  Object.assign(S,keep);shots=kp[0];picked=kp[1];qrOn=kp[2];photoMode=kp[3];testPrintLabel();
+  if(printMode()==='share'){const files=[];for(const [i,cv] of pages.entries()){const bl=await new Promise(r=>calib(cv,'photo').toBlob(r,'image/jpeg',.92));files.push(new File([bl],`시험인쇄-${i+1}.jpg`,{type:'image/jpeg'}));}
+    if(navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files});}catch(e){}return;}}
+  const area=$('printArea');area.querySelectorAll('img.tp').forEach(x=>x.remove());$('printImg').hidden=true;
+  await Promise.all(pages.map(cv=>new Promise(r=>{const im=new Image();im.className='tp';im.onload=r;im.src=calib(cv,'page').toDataURL('image/jpeg',.92);area.appendChild(im);})));
+  setTimeout(()=>{try{window.print();}catch(e){}setTimeout(()=>{area.querySelectorAll('img.tp').forEach(x=>x.remove());$('printImg').hidden=false;},1500);},200);};
+
 /* ---------- 비밀번호 ---------- */
 let pinBuf='';
 function openPin(){pinBuf='';$('pinMsg').textContent='';renderPin();$('pin').hidden=false;}
@@ -2398,14 +2426,15 @@ function drawThumbs(){const keep=[shots,picked,qrOn];shots=SAMPLE;picked=[0,1,2,
     const big=document.createElement('canvas');big.width=1181;big.height=1748;try{compose(big,fi,[null,null,null,null]);}catch(e){}const x=c.getContext('2d');x.clearRect(0,0,118,175);x.drawImage(big,0,0,118,175);});
   S.layout=L0;shots=keep[0];picked=keep[1];qrOn=keep[2];}
 $('optThumbs').onchange=()=>{const on=$('optThumbs').checked;document.querySelectorAll('.frmThumb').forEach(c=>c.hidden=!on);if(on)drawThumbs();};
-function syncForm(){$('lyA').checked=layouts().includes('A');$('lyB').checked=layouts().includes('B');$('devInfo').textContent=IOS?'이 기기는 아이패드(아이폰)예요 → 공유 창 → 프린트로 인쇄해요.':'이 기기는 갤럭시 탭(안드로이드)예요 → 인쇄 창으로 인쇄해요. 인쇄 창에서 「테두리 없음」을 켜 주세요.';renderCFList();$('optDate').checked=S.date;$('optQr').checked=S.qr;$(S.qrc==='video'?'qcV':'qcP').checked=true;$('optGas').value=S.gas||'';
+function syncForm(){setTimeout(testPrintLabel,0);$('lyA').checked=layouts().includes('A');$('lyB').checked=layouts().includes('B');$('devInfo').textContent=IOS?'이 기기는 아이패드(아이폰)예요 → 공유 창 → 프린트로 인쇄해요.':'이 기기는 갤럭시 탭(안드로이드)예요 → 인쇄 창으로 인쇄해요. 인쇄 창에서 「테두리 없음」을 켜 주세요.';renderCFList();$('optDate').checked=S.date;$('optQr').checked=S.qr;$(S.qrc==='video'?'qcV':'qcP').checked=true;$('optGas').value=S.gas||'';
   $('optText').value=S.text;$('optCount').value=String(S.count);$('optShots').value=String(S.shots);$('optFacing').value=S.facing;$('optMirror').checked=!!S.mirror;$('optPin').value='';qrKindState();
   ($('id'+{aperture:'Aperture',neon:'Neon',mission:'Mission',basic:'Basic'}[S.idle||'aperture'])||$('idAperture')).checked=true;$('optMissions').value=S.missions||'';$('optPrintMode').value=S.printMode||'auto';['p','q'].forEach(P=>{$('opt'+P+'Scale').value=S[P+'Scale']||100;$('opt'+P+'Dx').value=S[P+'Dx']||0;$('opt'+P+'Dy').value=S[P+'Dy']||0;});($('upMode'+(S.upMode==='later'?'L':'N'))).checked=true;$('optPoolN').value=String(poolTarget());qStatus();$('optFont').value=S.font||'auto';fontPrevUpd();missionRowState();
   $('optFrames').innerHTML=FRAMES.map(f=>`<label class="frmItem"><canvas class="frmThumb" data-k="${f.key}" width="118" height="175" ${$('optThumbs').checked?'':'hidden'}></canvas><span><input type="checkbox" name="frm" value="${f.key}" ${S.frames.includes(f.key)?'checked':''}>${f.name}${f.custom?' <small>(추가한 틀)</small>':''}</span></label>`).join('');if($('optThumbs').checked)setTimeout(drawThumbs,30);$('frameErr').hidden=true;$('setErr').hidden=true;$('gasMsg').textContent='';}
 let fpT=null;
 function fontPrevUpd(){clearTimeout(fpT);fpT=setTimeout(fontPrevDraw,120);}
 function fontPrevDraw(){const fk=$('optFont').value,txt=textLines($('optText').value).join('\n')||'2026 중산제 · 2학년 8반';
-  loadFont(fk==='auto'?'gothic':fk).then(()=>{const keep={text:S.text,font:S.font,layout:S.layout,date:S.date};S.text=txt;S.font=fk;S.date=$('optDate').checked;
+  const ftxt=txt+(DATE||'')+fontText();const want=fk==='auto'?fontsNeeded():[fk];$('fontFit').textContent='글꼴을 불러오는 중이에요…';$('fontFit').classList.remove('warn');document.querySelector('.fpRow').style.opacity=.35;
+  Promise.race([Promise.all(want.map(k=>loadFont(k,ftxt))),new Promise(r=>setTimeout(r,4000))]).then(()=>{document.querySelector('.fpRow').style.opacity='';const keep={text:S.text,font:S.font,layout:S.layout,date:S.date};S.text=txt;S.font=fk;S.date=$('optDate').checked;
     const wi=Math.max(0,FRAMES.findIndex(f=>f.key==='white'));const res=[];
     ['A','B'].forEach(ly=>{S.layout=ly;const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;FITMIN=1;compose(cv,wi,[null,null,null,null]);res.push(FITMIN);
       const out=$('fontCanvas'+ly),x=out.getContext('2d');const sw=ly==='A'?591:1181,top=1748-(ly==='A'?230:250);out.width=sw;out.height=1748-top;x.drawImage(cv,0,top,sw,1748-top,0,0,sw,1748-top);});
@@ -2416,7 +2445,7 @@ $('optFont').onchange=fontPrevUpd;$('optText').addEventListener('input',fontPrev
 function missionRowState(){$('missionRow').classList.toggle('dis',!$('idMission').checked);}
 document.querySelectorAll('input[name="idle"]').forEach(r=>r.onchange=missionRowState);
 function qrKindState(){const on=$('optQr').checked;['qrKind','gasRow','upRow'].forEach(id=>{$(id).classList.toggle('dis',!on);$(id).querySelectorAll('input,button,select').forEach(i=>i.disabled=!on);});}
-function openSettings(){clearTimers();tlStop();syncForm();$('settings').hidden=false;}
+function openSettings(){clearTimers();tlStop();syncForm();($('settings').hidden=false,zoomAllow(true));}
 $('optQr').onchange=qrKindState;
 $('optLogo').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
   const s=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
@@ -2451,7 +2480,13 @@ function fitScr(){const sc=$('scr'),cs=getComputedStyle(sc);const h=sc.clientHei
 addEventListener('resize',fitScr);if(window.visualViewport)visualViewport.addEventListener('resize',fitScr);addEventListener('orientationchange',()=>setTimeout(fitScr,300));fitScr();
 show('idle');renderIdle();qStatus();try{$('appVer').textContent=APP_VER;}catch(e){}
 if(document.fonts)document.fonts.ready.then(()=>{if(cur==='idle')renderIdle();});
-document.addEventListener('gesturestart',e=>e.preventDefault());
+/* 손가락 확대·축소: 사진 고르는 화면과 교사 설정에서만 됨(나머지 학생 화면은 고정, 벗어나면 원래 크기로) */
+let zoomOK=false;
+function zoomAllow(on){zoomOK=on;const m=document.querySelector('meta[name=viewport]');if(!m)return;
+  m.setAttribute('content',on?'width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=5,viewport-fit=cover':'width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no');
+  document.documentElement.classList.toggle('zoomable',on);}
+document.addEventListener('gesturestart',e=>{if(!zoomOK)e.preventDefault();});
+zoomAllow(false);
 })();
 </script>
 </body>
