@@ -312,8 +312,12 @@ html,body{touch-action:manipulation;overscroll-behavior:none}
 #optFrames .frmItem:has(input:checked){background:rgba(22,22,22,.06)}
 .thumbToggle{display:inline-flex;gap:.5cqw;align-items:center;font-size:1.3cqw;margin-bottom:.8cqw}
 .frmThumb[hidden]{display:none}
-#optFrames:not(:has(.frmThumb:not([hidden]))) .frmItem{width:auto;flex-direction:row}
+#optFrames:not(:has(.thBox:not([hidden]))) .frmItem{width:auto;flex-direction:row}
 html,body,.settings{touch-action:pan-x pan-y pinch-zoom}
+.thBox{display:flex;gap:.4cqw;justify-content:center}
+.thBox[hidden]{display:none}
+#optFrames .frmItem{width:auto;min-width:11cqw}
+.thBox .frmThumb{width:9cqw}
 
 </style>
 </head>
@@ -1810,7 +1814,7 @@ const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
 /* ---------- 설정 ---------- */
 const ALL_FRAMES=['white','black','film','diary','festival','horror','night','crowe'];
 const DEF_MISSIONS=['셋이 똑같은 표정 짓기','선생님 흉내 내기','과학실 실험 포즈','가장 놀란 얼굴','손가락 하트 릴레이','서로 볼 콕','슬로모션 점프','눈 감고 브이','세상에서 제일 진지한 얼굴','별 보는 척하기','탈출 성공 만세','좀비처럼 다가가기'];
-const APP_VER='11월 10일 12:00 수정본';
+const APP_VER='11월 10일 12:05 수정본';
 const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n')};
 let S=Object.assign({},DEF);
 let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);}catch(e){}
@@ -2078,6 +2082,9 @@ function composeSpec(ctx,W,H,fr,imgs,qr){const sp=fr.spec,ext=sp.ext||{},mm=W/10
   ctx.fillStyle=sp.bg;ctx.fillRect(0,0,W,H);
   const g=ext.bgGradient;if(g&&g.type==='radial'){const cx=g.center[0]*W,cy=g.center[1]*H,r=Math.hypot(Math.max(cx,W-cx),Math.max(cy,H-cy));const gr=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.stops.forEach(([c,a])=>gr.addColorStop(a,c));ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);}
   specPattern(ctx,W,H,sp.pattern);
+  /* 바탕 무늬 그림을 종이 전체에 깔기: ext.tile={src,sizeMm,opacity} */
+  if(ext.tile&&ASSET[ext.tile.src]){const im=ASSET[ext.tile.src],tw=(ext.tile.sizeMm||40)*mm,th=tw*im.height/im.width;const t=document.createElement('canvas');t.width=Math.max(1,Math.round(tw));t.height=Math.max(1,Math.round(th));t.getContext('2d').drawImage(im,0,0,t.width,t.height);
+    ctx.save();ctx.globalAlpha=ext.tile.opacity??1;ctx.fillStyle=ctx.createPattern(t,'repeat');ctx.fillRect(0,0,W,H);ctx.restore();}
   const cols=A&&W>=1000?[{x:0,w:W/2},{x:W/2,w:W/2}]:[{x:0,w:W}];
   const hasTime=sp.timeBox&&sp.timeBox.on,stripImgs=A&&ext.images&&ext.images.strip&&ext.images.strip.length,anyImgs=ext.images&&ext.images[lay]&&ext.images[lay].length,botR=(hasTime?300:stripImgs?195:anyImgs?232:175)*H/1748,top=(A?215:285)*H/1748,ins=A?30:40,gap=A?14:21;
   cols.forEach(col=>{
@@ -2421,15 +2428,21 @@ $('pinPad').onclick=e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)retur
   if(pinBuf.length===4){if(pinBuf===String(S.pin||'0000')){$('pin').hidden=true;openSettings();}else{$('pinMsg').textContent='비밀번호가 달라요';pinBuf='';setTimeout(renderPin,250);}}};
 
 /* ---------- 교사 설정 ---------- */
-function drawThumbs(){const keep=[shots,picked,qrOn];shots=SAMPLE;picked=[0,1,2,3];qrOn=false;const L0=S.layout;
-  document.querySelectorAll('.frmThumb').forEach(c=>{const fi=FRAMES.findIndex(f=>f.key===c.dataset.k);if(fi<0)return;const fr=FRAMES[fi];S.layout=fr.png&&!fr.png[L0]?(fr.png.A?'A':'B'):L0;
-    const big=document.createElement('canvas');big.width=1181;big.height=1748;try{compose(big,fi,[null,null,null,null]);}catch(e){}const x=c.getContext('2d');x.clearRect(0,0,118,175);x.drawImage(big,0,0,118,175);});
-  S.layout=L0;shots=keep[0];picked=keep[1];qrOn=keep[2];}
-$('optThumbs').onchange=()=>{const on=$('optThumbs').checked;document.querySelectorAll('.frmThumb').forEach(c=>c.hidden=!on);if(on)drawThumbs();};
+/* 보일 틀 미리보기: 지금 적은 문구·글꼴·날짜와 체크한 배치(2줄 띠 / 2×2)로 그림 */
+let thT=null;function thumbsUpd(){if(!$('optThumbs').checked)return;clearTimeout(thT);thT=setTimeout(drawThumbs,200);}
+function drawThumbs(){if(!$('optThumbs').checked)return;const keep={text:S.text,font:S.font,layout:S.layout,date:S.date},kp=[shots,picked,qrOn,photoMode];
+  S.text=textLines($('optText').value).join('\n');S.font=$('optFont').value;S.date=$('optDate').checked;shots=SAMPLE;picked=[0,1,2,3];qrOn=false;
+  const lys={A:$('lyA').checked,B:$('lyB').checked};
+  document.querySelectorAll('.frmThumb').forEach(c=>{const L=c.dataset.l,fi=FRAMES.findIndex(f=>f.key===c.dataset.k);const fr=FRAMES[fi];
+    const show=fi>=0&&lys[L]&&!(fr.png&&!fr.png[L]);c.hidden=!show;if(!show)return;S.layout=L;photoMode=fr.spec&&fr.spec.photo&&fr.spec.photo.filter==='gray'?'gray':'color';
+    const big=document.createElement('canvas');big.width=1181;big.height=1748;try{compose(big,fi,[null,null,null,null]);}catch(e){}const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.drawImage(big,0,0,c.width,c.height);});
+  Object.assign(S,keep);shots=kp[0];picked=kp[1];qrOn=kp[2];photoMode=kp[3];}
+$('optThumbs').onchange=()=>{const on=$('optThumbs').checked;document.querySelectorAll('.thBox').forEach(c=>c.hidden=!on);if(on)drawThumbs();};
+['optText','optFont','optDate','lyA','lyB'].forEach(id=>{const el=$(id);el.addEventListener('input',thumbsUpd);el.addEventListener('change',thumbsUpd);});
 function syncForm(){setTimeout(testPrintLabel,0);$('lyA').checked=layouts().includes('A');$('lyB').checked=layouts().includes('B');$('devInfo').textContent=IOS?'이 기기는 아이패드(아이폰)예요 → 공유 창 → 프린트로 인쇄해요.':'이 기기는 갤럭시 탭(안드로이드)예요 → 인쇄 창으로 인쇄해요. 인쇄 창에서 「테두리 없음」을 켜 주세요.';renderCFList();$('optDate').checked=S.date;$('optQr').checked=S.qr;$(S.qrc==='video'?'qcV':'qcP').checked=true;$('optGas').value=S.gas||'';
   $('optText').value=S.text;$('optCount').value=String(S.count);$('optShots').value=String(S.shots);$('optFacing').value=S.facing;$('optMirror').checked=!!S.mirror;$('optPin').value='';qrKindState();
   ($('id'+{aperture:'Aperture',neon:'Neon',mission:'Mission',basic:'Basic'}[S.idle||'aperture'])||$('idAperture')).checked=true;$('optMissions').value=S.missions||'';$('optPrintMode').value=S.printMode||'auto';['p','q'].forEach(P=>{$('opt'+P+'Scale').value=S[P+'Scale']||100;$('opt'+P+'Dx').value=S[P+'Dx']||0;$('opt'+P+'Dy').value=S[P+'Dy']||0;});($('upMode'+(S.upMode==='later'?'L':'N'))).checked=true;$('optPoolN').value=String(poolTarget());qStatus();$('optFont').value=S.font||'auto';fontPrevUpd();missionRowState();
-  $('optFrames').innerHTML=FRAMES.map(f=>`<label class="frmItem"><canvas class="frmThumb" data-k="${f.key}" width="118" height="175" ${$('optThumbs').checked?'':'hidden'}></canvas><span><input type="checkbox" name="frm" value="${f.key}" ${S.frames.includes(f.key)?'checked':''}>${f.name}${f.custom?' <small>(추가한 틀)</small>':''}</span></label>`).join('');if($('optThumbs').checked)setTimeout(drawThumbs,30);$('frameErr').hidden=true;$('setErr').hidden=true;$('gasMsg').textContent='';}
+  $('optFrames').innerHTML=FRAMES.map(f=>`<label class="frmItem"><span class="thBox" ${$('optThumbs').checked?'':'hidden'}><canvas class="frmThumb" data-k="${f.key}" data-l="A" width="118" height="175"></canvas><canvas class="frmThumb" data-k="${f.key}" data-l="B" width="118" height="175"></canvas></span><span><input type="checkbox" name="frm" value="${f.key}" ${S.frames.includes(f.key)?'checked':''}>${f.name}${f.custom?' <small>(추가한 틀)</small>':''}</span></label>`).join('');if($('optThumbs').checked)setTimeout(drawThumbs,30);$('frameErr').hidden=true;$('setErr').hidden=true;$('gasMsg').textContent='';}
 let fpT=null;
 function fontPrevUpd(){clearTimeout(fpT);fpT=setTimeout(fontPrevDraw,120);}
 function fontPrevDraw(){const fk=$('optFont').value,txt=textLines($('optText').value).join('\n')||'2026 중산제 · 2학년 8반';
