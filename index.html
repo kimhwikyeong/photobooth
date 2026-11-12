@@ -437,6 +437,20 @@ html,body,.settings{touch-action:pan-x pan-y pinch-zoom}
 .fpFrRow{display:flex;align-items:center;gap:.85cqw;font-size:1.19cqw;font-weight:500;color:#222}
 .fpFrRow select{flex:1;min-height:3.4cqw!important;padding:.4cqw 1cqw!important}
 
+.adj{display:flex;flex-wrap:wrap;align-items:center;gap:.5cqw}
+.adj .optCap{min-width:auto!important;margin-right:.3cqw}.adj .optCap.sp{margin-left:1cqw}
+.adj button{font:inherit;min-width:3.73cqw;min-height:3.73cqw;border:.085cqw solid #D3CEC3;border-radius:999px;background:#fff;color:#222;font-size:1.4cqw;cursor:pointer;padding:0 .9cqw}
+.adj button.soft{border-color:#E5E1D8;color:#6F6B63;font-size:1.1cqw;margin-left:.5cqw}
+.adj button:disabled{opacity:.35}
+.adj b{min-width:5.6cqw;text-align:center;font-weight:500;font-size:1.19cqw}
+.logoRow{display:flex;gap:1.2cqw;align-items:center;flex-wrap:wrap}
+.logoPrev{width:13cqw;height:6.6cqw;border:.085cqw dashed #D3CEC3;border-radius:1.02cqw;display:grid;place-items:center;background:#fff;overflow:hidden;font-size:1.1cqw;color:#9A958B}
+.logoPrev img{max-width:92%;max-height:88%;object-fit:contain}
+.logoPrev img[hidden],#logoNone[hidden]{display:none}
+#dcSw{display:flex;gap:6px}#dcSw button{width:2.7cqw;height:2.7cqw;border-radius:50%;border:1px solid #bbb;padding:0;cursor:pointer}#dcSw button.on{outline:.17cqw solid #2B3A55;outline-offset:2px}
+.fontBox.full .fpRow{align-items:flex-start}
+.fontBox.full canvas{height:36cqw!important;width:auto!important;max-width:none!important}
+
 </style>
 </head>
 <body>
@@ -609,12 +623,19 @@ html,body,.settings{touch-action:pan-x pan-y pinch-zoom}
       <div class="stBody" id="stBody">
       <p class="err" id="setErr" hidden></p>
       <section class="stPage on" data-p="deco"><div class="stCols"><div><fieldset><legend><span class="lab">문구</span></legend>
-        <div class="opts"><textarea id="optText" rows="2" maxlength="60" placeholder="예: 2026 중산제 · 2학년 8반 (Enter로 두 줄까지)"></textarea></div></fieldset><fieldset><legend><span class="lab">날짜 넣기</span></legend>
+        <div class="opts"><textarea id="optText" rows="2" maxlength="60" placeholder="예: 2026 중산제 · 2학년 8반 (Enter로 두 줄까지)"></textarea></div>
+        <div class="adj"><span class="optCap">글자 크기</span><button type="button" data-a="ts-" aria-label="글자 작게">−</button><b id="tsV">100%</b><button type="button" data-a="ts+" aria-label="글자 크게">＋</button>
+          <span class="optCap sp">위치</span><button type="button" data-a="ty-" aria-label="위로">↑</button><button type="button" data-a="ty+" aria-label="아래로">↓</button><button type="button" data-a="tx-" aria-label="왼쪽으로">←</button><button type="button" data-a="tx+" aria-label="오른쪽으로">→</button><b id="tpV">0, 0mm</b><button type="button" data-a="t0" class="soft">되돌리기</button></div>
+        <p class="note">모든 틀의 아래 문구(날짜 포함)에 같이 적용돼요. 위치는 한 번에 1mm씩 옮겨요.</p></fieldset><fieldset><legend><span class="lab">날짜 넣기</span></legend>
         <div class="opts"><label><input type="checkbox" id="optDate">사진에 오늘 날짜 (문구 아래에 작게)</label></div></fieldset><fieldset><legend><span class="lab">글꼴</span></legend>
         <div class="opts"><select id="optFont"><option value="auto">틀마다 기본 글꼴</option><optgroup label="추천"><option value="batang">고운바탕 Bold (명조)</option><option value="myeongjo">나눔명조 ExtraBold</option><option value="notoserif">본명조 Bold (Noto Serif KR)</option><option value="hahmlet">함렛 (Hahmlet)</option><option value="dodum">고운돋움</option></optgroup><optgroup label="그 밖의 글꼴"><option value="gothic">고딕 (Gothic A1)</option><option value="nanumgothic">나눔고딕</option><option value="sunflower">해바라기 고딕 (Sunflower)</option><option value="dohyeon">반듯한 굵은 글씨 (도현)</option><option value="blackhan">아주 굵은 글씨 (검은고딕)</option><option value="jua">둥근 굵은 글씨 (주아)</option><option value="dongle">동글동글 (Dongle)</option><option value="cute">귀여운 글씨 (Cute Font)</option><option value="gaegu">손글씨 (개구)</option><option value="nanumpen">펜 손글씨 (나눔손글씨 펜)</option><option value="gamja">손글씨 (감자꽃)</option><option value="poorstory">손글씨 (서툰 이야기)</option><option value="himelody">손글씨 (하이 멜로디)</option><option value="singleday">동글 손글씨 (싱글데이)</option><option value="stylish">멋 글씨 (Stylish)</option><option value="yeonsung">붓글씨 (연성)</option><option value="dokdo">거친 붓글씨 (동해 독도)</option><option value="songmyung">옛 명조 (송명)</option><option value="notosans">본고딕 (Noto Sans KR)</option><option value="ibmplex">IBM 플렉스 고딕</option><option value="orbit">둥근 고딕 (Orbit)</option><option value="gugi">레트로 굵은 글씨 (구기)</option><option value="bagel">통통한 글씨 (베이글)</option><option value="gasoek">아주 두꺼운 글씨 (가석)</option><option value="kirang">붓 손글씨 (기랑해랑)</option><option value="bwpicture">흑백사진 손글씨</option><option value="nanumbrush">붓 손글씨 (나눔손글씨 붓)</option><option value="dokdo2">거친 손글씨 (독도)</option></optgroup></select><div class="fpk" id="fpk"><button type="button" class="fpkBtn" id="fpkBtn" aria-haspopup="listbox"><span id="fpkName"></span><i>▾</i></button><div class="fpkList" id="fpkList" role="listbox" hidden></div></div></div></fieldset><fieldset><legend><span class="lab">글자 색</span></legend>
-        <div class="opts tcRow"><label><input type="checkbox" id="tcAuto" checked>틀 기본색</label><input type="color" id="tcPick" value="#ffffff" disabled aria-label="글자 색 고르기"><span id="tcSw"><button type="button" data-c="#FFFFFF" style="background:#FFFFFF" aria-label="흰색"></button><button type="button" data-c="#1D1D1F" style="background:#1D1D1F" aria-label="검정"></button><button type="button" data-c="#E8D9B5" style="background:#E8D9B5" aria-label="베이지 금색"></button><button type="button" data-c="#D4AF37" style="background:#D4AF37" aria-label="금색"></button><button type="button" data-c="#B82229" style="background:#B82229" aria-label="빨강"></button><button type="button" data-c="#1B4332" style="background:#1B4332" aria-label="초록"></button><button type="button" data-c="#1F2A5A" style="background:#1F2A5A" aria-label="남색"></button></span></div>
-        <p class="note">아래 문구 색이에요. 크로우 실험실의 「Dr.CROWE LAB 탈출 성공」 제목은 틀 색 그대로예요.</p></fieldset><fieldset><legend><span class="lab">로고</span></legend>
-        <div class="opts"><input type="file" id="optLogo" accept="image/*"><button type="button" class="btn small" id="logoClear">지우기</button></div></fieldset></div><div class="stPrev"><fieldset class="stPrevCard"><legend><span class="lab">미리보기</span></legend><div class="fontBox"><label class="fpFrRow"><span>틀</span><select id="fpFrame" aria-label="미리볼 틀"></select></label><div class="fpRow"><figure><canvas id="fontCanvasA" width="591" height="230"></canvas><figcaption>2줄 띠</figcaption></figure><figure><canvas id="fontCanvasB" width="1181" height="250"></canvas><figcaption>2×2</figcaption></figure></div><p class="note" id="fontFit"></p></div><p class="note">문구·글꼴·색을 바꾸면 바로 바뀌어요.</p></fieldset></div></div></section>
+        <div class="opts tcRow"><span class="optCap">문구 색</span><label><input type="checkbox" id="tcAuto" checked>틀 기본색</label><input type="color" id="tcPick" value="#ffffff" disabled aria-label="글자 색 고르기"><span id="tcSw"><button type="button" data-c="#FFFFFF" style="background:#FFFFFF" aria-label="흰색"></button><button type="button" data-c="#1D1D1F" style="background:#1D1D1F" aria-label="검정"></button><button type="button" data-c="#E8D9B5" style="background:#E8D9B5" aria-label="베이지 금색"></button><button type="button" data-c="#D4AF37" style="background:#D4AF37" aria-label="금색"></button><button type="button" data-c="#B82229" style="background:#B82229" aria-label="빨강"></button><button type="button" data-c="#1B4332" style="background:#1B4332" aria-label="초록"></button><button type="button" data-c="#1F2A5A" style="background:#1F2A5A" aria-label="남색"></button></span></div>
+        <div class="opts tcRow"><span class="optCap">날짜 색</span><label><input type="checkbox" id="dcAuto" checked>틀 기본색</label><input type="color" id="dcPick" value="#ffffff" disabled aria-label="날짜 색 고르기"><span id="dcSw"><button type="button" data-c="#FFFFFF" style="background:#FFFFFF" aria-label="흰색"></button><button type="button" data-c="#1D1D1F" style="background:#1D1D1F" aria-label="검정"></button><button type="button" data-c="#E8D9B5" style="background:#E8D9B5" aria-label="베이지 금색"></button><button type="button" data-c="#D4AF37" style="background:#D4AF37" aria-label="금색"></button><button type="button" data-c="#B82229" style="background:#B82229" aria-label="빨강"></button><button type="button" data-c="#1B4332" style="background:#1B4332" aria-label="초록"></button><button type="button" data-c="#1F2A5A" style="background:#1F2A5A" aria-label="남색"></button></span></div>
+        <p class="note">문구 색은 아래 문구에, 날짜 색은 날짜에 들어가요. 크로우 실험실의 「Dr.CROWE LAB 탈출 성공」 제목은 틀 색 그대로예요.</p></fieldset><fieldset><legend><span class="lab">로고</span></legend>
+        <div class="logoRow"><div class="logoPrev"><img id="logoThumb" alt="로고" hidden><span id="logoNone">로고 없음</span></div><div class="opts"><input type="file" id="optLogo" accept="image/*"><button type="button" class="btn small" id="logoClear">지우기</button></div></div>
+        <div class="adj"><span class="optCap">로고 크기</span><button type="button" data-a="ls-" aria-label="로고 작게">−</button><b id="lsV">100%</b><button type="button" data-a="ls+" aria-label="로고 크게">＋</button>
+          <span class="optCap sp">위치</span><button type="button" data-a="ly-" aria-label="위로">↑</button><button type="button" data-a="ly+" aria-label="아래로">↓</button><button type="button" data-a="lx-" aria-label="왼쪽으로">←</button><button type="button" data-a="lx+" aria-label="오른쪽으로">→</button><b id="lpV">0, 0mm</b><button type="button" data-a="l0" class="soft">되돌리기</button></div>
+        <p class="note">로고를 키울 때는 미리보기 「전체」에서 QR 자리와 겹치지 않는지 확인해 주세요.</p></fieldset></div><div class="stPrev"><fieldset class="stPrevCard"><legend><span class="lab">미리보기</span></legend><div class="opts fpModeRow"><label><input type="radio" name="fpMode" value="bottom" checked>아래 문구</label><label><input type="radio" name="fpMode" value="full">전체 (로고 포함)</label></div><div class="fontBox"><label class="fpFrRow"><span>틀</span><select id="fpFrame" aria-label="미리볼 틀"></select></label><div class="fpRow"><figure><canvas id="fontCanvasA" width="591" height="230"></canvas><figcaption>2줄 띠</figcaption></figure><figure><canvas id="fontCanvasB" width="1181" height="250"></canvas><figcaption>2×2</figcaption></figure></div><p class="note" id="fontFit"></p></div><p class="note">문구·글꼴·색을 바꾸면 바로 바뀌어요.</p></fieldset></div></div></section>
       <section class="stPage" data-p="frames"><fieldset><legend><span class="lab">인쇄 배치</span></legend>
         <div class="opts"><label><input type="checkbox" name="layout" value="A" id="lyA">2줄 띠 (잘라서 둘이 나눔)</label><label><input type="checkbox" name="layout" value="B" id="lyB">큰 4장 (2 × 2)</label><span class="note">둘 다 고르면 학생이 시작할 때 골라요.</span></div></fieldset><fieldset><legend><span class="lab">보일 틀</span></legend>
         <div><p class="note" style="margin:0 0 .6cqw">누르면 켜고 꺼요 · ⠿를 끌어 순서를 바꿔요 (학생 화면에 이 순서로 나와요)</p><label class="thumbToggle"><input type="checkbox" id="optThumbs">미리보기 보기</label><div class="opts" id="optFrames"></div><p class="err" id="frameErr" hidden>틀을 하나 이상 켜 주세요.</p><div class="row2" style="margin-top:.8cqw"><button type="button" class="btn small" id="testPrint">체크한 틀 시험 인쇄</button><span class="note">견본 사진으로 체크한 틀 × 체크한 배치만큼 한 장씩 인쇄해요.</span></div></div></fieldset><fieldset class="cf"><legend><span class="lab">틀 추가</span></legend>
@@ -1962,7 +1983,7 @@ const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
 /* ---------- 설정 ---------- */
 const ALL_FRAMES=['white','black','film','diary','festival','horror','night','crowe'];
 const DEF_MISSIONS=['셋이 똑같은 표정 짓기','선생님 흉내 내기','과학실 실험 포즈','가장 놀란 얼굴','손가락 하트 릴레이','서로 볼 콕','슬로모션 점프','눈 감고 브이','세상에서 제일 진지한 얼굴','별 보는 척하기','탈출 성공 만세','좀비처럼 다가가기'];
-const APP_VER='11월 12일 21:20 수정본';
+const APP_VER='11월 12일 21:40 수정본';
 const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n'),consent:false,consentText:'찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 행사가 끝나면 지워요.',idleOn:true,idleSec:60,multi:false,maxN:4,nMode:'free',rpN:6,order:[]};
 let S=Object.assign({},DEF);const OLD_CONSENT='찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 축제가 끝나면 지워요.';
 let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);if(S.consentText===OLD_CONSENT)S.consentText=DEF.consentText;}catch(e){}
@@ -1996,6 +2017,7 @@ function fitLine(ctx,t,cx,y,maxW,wt,fs,font){if(FONTWMAX[font]&&wt>FONTWMAX[font
   const w=ctx.measureText(t).width;const q=w>maxW?maxW/w:1;FITMIN=Math.min(FITMIN,k*q);
   if(q<1){ctx.save();ctx.translate(cx,0);ctx.scale(q,1);ctx.fillText(t,0,y);ctx.restore();}else ctx.fillText(t,cx,y);}
 const FONTWMAX={'"Gowun Batang"':700,'"Nanum Myeongjo"':800,'"Noto Serif KR"':700,'"Hahmlet"':700};/* 고른 굵기(Bold·ExtraBold)로 */
+const MMPX=11.81,TSC=()=>Math.min(2,Math.max(.5,(+S.textScale||100)/100)),TDX=()=>(+S.textDx||0)*MMPX,TDY=()=>(+S.textDy||0)*MMPX,LSC=()=>Math.min(2.5,Math.max(.4,(+S.logoScale||100)/100)),LDX=()=>(+S.logoDx||0)*MMPX,LDY=()=>(+S.logoDy||0)*MMPX;/* 교사가 조정한 글자·로고 크기와 위치 */
 function txtInk(fr,def){return (S.textColor&&/^#[0-9a-f]{6}$/i.test(S.textColor))?S.textColor:(def||fr.ink);}
 function fontFor(fr){if(S.font&&S.font!=='auto'&&FONTS[S.font])return FONTS[S.font];if(fr.spec&&FONTS[fr.spec.font])return FONTS[fr.spec.font];return fr.key==='diary'?FONTS.gaegu:FONTS.gothic;}
 let fontsReady=Promise.resolve();
@@ -2266,16 +2288,16 @@ function composeSpec(ctx,W,H,fr,imgs,qr){const sp=fr.spec,ext=sp.ext||{},mm=W/10
       const x=it.where==='bottom-left'?area.x+pad:area.x+area.w-pad-dw,y=area.y+area.h-pad-dh;ctx.drawImage(im,x,y,dw,dh);const hg=(it.hug||0)*dw;/* 투명한 부분만큼 글자가 더 다가가도 됨 */if(it.where==='bottom-left')inL=Math.max(inL,x+dw-hg);else inR=Math.min(inR,x+hg);});
     // 아래 글자
     /* 아래 그림이 양쪽에 있으면 두 그림 사이 정가운데에 글자 */
-    const both=inL>0&&inR<1e9,cx=both?(inL+inR)/2:col.x+col.w/2,maxW=both?inR-inL-28:col.w-side*2,bo=sp.bottom;ctx.save();ctx.fillStyle=sp.ink;ctx.textAlign='center';ctx.textBaseline='middle';
-    const ts=sp.textSize,big=ts?ts[A?0:1]:(A?52:70),tw=sp.textWeight||900;let lines;
+    const both=inL>0&&inR<1e9,cx=(both?(inL+inR)/2:col.x+col.w/2)+TDX(),maxW=both?inR-inL-28:col.w-side*2,bo=sp.bottom;ctx.save();ctx.fillStyle=sp.ink;ctx.textAlign='center';ctx.textBaseline='middle';
+    const ts=sp.textSize,big=(ts?ts[A?0:1]:(A?52:70))*TSC(),tw=sp.textWeight||900;let lines;
     const TL=textLines();if(bo&&bo.keep){lines=[[A?(bo.titleStrip||bo.title):bo.title,900,TL.length>1?big*.85:big],...TL.map(t=>[t,600,big*(TL.length>1?.5:.62)])].filter(l=>l[0]);}
     else{lines=TL.map(t=>[t,tw,TL.length>1?big*.74:big]);}
-    if(S.date&&dateAtBottom(fr))lines.push([DATE,sp.dateFont?400:600,(sp.dateSize||[22,27])[A?0:1],'date']);/* 날짜를 문구 아래에 */
-    const yc=H-(sp.textY?sp.textY[A?0:1]:(A?95:92))*H/1748;
+    if(S.date&&dateAtBottom(fr))lines.push([DATE,sp.dateFont?400:600,(sp.dateSize||[22,27])[A?0:1]*Math.sqrt(TSC()),'date']);/* 날짜를 문구 아래에 */
+    const yc=H-(sp.textY?sp.textY[A?0:1]:(A?95:92))*H/1748+TDY();
 const subC=(c&&c.labelColor)||sp.ink;const hs=lines.map(l=>l[2]*1.16),tot=hs.reduce((a,b)=>a+b,0);let yy=Math.min(yc,H-44*H/1748-tot/2)-tot/2;/* 종이 아래 끝에 붙지 않게 */
     if(ext.textPlate&&lines.length){const tp=ext.textPlate,pd=(tp.padMm??2)*mm;let mw=0;lines.forEach(([t,wt,fs,k])=>{ctx.font=`${wt} ${fs}px ${k==='date'?(FONTS[sp.dateFont]||font):font},sans-serif`;mw=Math.max(mw,Math.min(maxW,ctx.measureText(t).width+(k==='date'?t.length*fs*.26:0)));});
       ctx.save();ctx.globalAlpha=tp.opacity??1;ctx.fillStyle=tp.color||sp.bg;rrect(ctx,cx-mw/2-pd*1.6,yy-pd,mw+pd*3.2,tot+pd*2,(tp.radiusMm??3)*mm);ctx.fill();ctx.restore();}/* 무늬 위 글자 받침 */
-    lines.forEach(([t,wt,fs,kind],i)=>{if(kind==='date'){ctx.save();ctx.fillStyle=sp.dateColor||sp.ink;ctx.globalAlpha=sp.dateAlpha??.8;ctx.letterSpacing=Math.round(fs*.26)+'px';fitLine(ctx,t,cx,yy+hs[i]/2+fs*.15,maxW,wt,fs,FONTS[sp.dateFont]||font);ctx.restore();yy+=hs[i];return;}
+    lines.forEach(([t,wt,fs,kind],i)=>{if(kind==='date'){ctx.save();ctx.fillStyle=S.dateColor||sp.dateColor||sp.ink;ctx.globalAlpha=S.dateColor?1:(sp.dateAlpha??.8);ctx.letterSpacing=Math.round(fs*.26)+'px';fitLine(ctx,t,cx,yy+hs[i]/2+fs*.15,maxW,wt,fs,FONTS[sp.dateFont]||font);ctx.restore();yy+=hs[i];return;}
       ctx.fillStyle=(bo&&bo.keep)?(i?txtInk(fr,subC):sp.ink):txtInk(fr,sp.ink);ctx.letterSpacing='0px';fitLine(ctx,t,cx,yy+hs[i]/2,maxW,wt,fs,font);yy+=hs[i];});ctx.letterSpacing='0px';ctx.restore();
     // 탈출 시간 칸
     if(hasTime){const tb=sp.timeBox,bx=tb.box||{},bw=(bx.widthMm||12.5)*mm,bh=(bx.heightMm||7)*mm,yb=H-botR+(botR-(A?190:185)*H/1748)/2+8;
@@ -2307,20 +2329,20 @@ function drawQR(ctx,x,y,size){ctx.fillStyle='#fff';ctx.fillRect(x,y,size,size);
   else{ctx.strokeStyle='#161616';ctx.lineWidth=4;ctx.strokeRect(x+6,y+6,size-12,size-12);ctx.fillStyle='#161616';ctx.font=`${size*.2}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('QR',x+size/2,y+size/2);}}
 function slot(ctx,img,x,y,w,h,n,fr){if(img){cover(ctx,photoMode==='gray'?filtered(img,'gray'):img,x,y,w,h);return;}ctx.save();ctx.fillStyle=fr.ink;ctx.globalAlpha=.08;ctx.fillRect(x,y,w,h);ctx.globalAlpha=.35;ctx.font=`900 ${Math.min(w,h)*.28}px "Gothic A1",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(n+1),x+w/2,y+h/2);ctx.restore();}
 function cover(ctx,img,x,y,w,h){const ir=img.width/img.height,cr=w/h;let sw=img.width,sh=img.height,sx=0,sy=0;if(ir>cr){sw=sh*cr;sx=(img.width-sw)/2;}else{sh=sw/cr;sy=(img.height-sh)/2;}ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);}
-function logoAt(ctx,x,y,w,h,fr){if(!logoImg)return;if(logoImg){const s=Math.min(w/logoImg.width,h/logoImg.height);ctx.drawImage(logoImg,x,y+(h-logoImg.height*s)/2,logoImg.width*s,logoImg.height*s);return;}
+function logoAt(ctx,x,y,w,h,fr){if(!logoImg)return;if(logoImg){const k=LSC(),s=Math.min(w/logoImg.width,h/logoImg.height)*k;ctx.drawImage(logoImg,x+LDX(),y+(h-logoImg.height*s)/2+LDY(),logoImg.width*s,logoImg.height*s);return;}
   ctx.save();ctx.setLineDash([12,9]);ctx.strokeStyle=fr.ink;ctx.globalAlpha=.45;ctx.lineWidth=3;ctx.strokeRect(x,y,w,h);ctx.setLineDash([]);ctx.fillStyle=fr.ink;ctx.font=`600 ${h*.26}px "Gothic A1",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('로고 자리',x+w/2,y+h/2);ctx.restore();}
 function dateAtBottom(fr){return !fr.png&&fr.key!=='film'&&(!fr.spec||(fr.spec.datePos||'bottom')==='bottom');}/* 날짜는 문구 아래 (PNG 틀만 로고 밑) */
-function dateUnderLogo(ctx,x,y,lh,A,fr,font){if(!S.date||dateAtBottom(fr))return;const fs=A?28:36,ds=fr.spec||{};ctx.save();ctx.fillStyle=ds.dateColor||fr.ink;ctx.globalAlpha=ds.dateAlpha??.85;ctx.font=`600 ${fs}px ${font},sans-serif`;ctx.letterSpacing='2px';ctx.textAlign='left';ctx.textBaseline='top';
+function dateUnderLogo(ctx,x,y,lh,A,fr,font){if(!S.date||dateAtBottom(fr))return;const fs=A?28:36,ds=fr.spec||{};x+=LDX();y+=LDY();ctx.save();ctx.fillStyle=S.dateColor||ds.dateColor||fr.ink;ctx.globalAlpha=S.dateColor?1:(ds.dateAlpha??.85);ctx.font=`600 ${fs}px ${font},sans-serif`;ctx.letterSpacing='2px';ctx.textAlign='left';ctx.textBaseline='top';
   let yy=y+(logoImg?lh+8:lh*.3);if(logoImg){const s=Math.min((A?190:300)/logoImg.width,lh/logoImg.height);yy=y+(lh+logoImg.height*s)/2+8;}
   if(ds.datePos==='abovePhoto'){ctx.textBaseline='bottom';yy=(A?215:285)*ctx.canvas.height/1748-(A?12:14);x+=A?26:34;}/* 모서리 별을 피해 살짝 오른쪽 *//* 사진 바로 위 */ctx.fillText(DATE,x+2,yy);ctx.letterSpacing='0px';ctx.restore();}
 function heart(ctx,x,y,s,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x,y+s*.35);ctx.bezierCurveTo(x-s*.9,y-s*.3,x-s*.35,y-s*.95,x,y-s*.45);ctx.bezierCurveTo(x+s*.35,y-s*.95,x+s*.9,y-s*.3,x,y+s*.35);ctx.fill();}
 function star(ctx,x,y,r,c){ctx.fillStyle=c;ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.45:r;ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}ctx.fill();}
 function tape(ctx,x,y,w,ang){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.fillStyle='rgba(250,220,120,.75)';ctx.fillRect(-w/2,-14,w,28);ctx.restore();}
-function footer(ctx,cx,y,fr,size,maxW){maxW=maxW||ctx.canvas.width-80;const font=fontFor(fr);ctx.save();ctx.fillStyle=txtInk(fr);ctx.textAlign='center';ctx.textBaseline='middle';
+function footer(ctx,cx,y,fr,size,maxW){maxW=maxW||ctx.canvas.width-80;size*=TSC();cx+=TDX();y+=TDY();const font=fontFor(fr);ctx.save();ctx.fillStyle=txtInk(fr);ctx.textAlign='center';ctx.textBaseline='middle';
   const L=textLines(),n=L.length,fs=n>1?size*.74:size,wt=fr.key==='diary'?700:900;
   const dOn=S.date&&dateAtBottom(fr),dfs=size*.42,dh=dOn?dfs*1.5:0,y0=y-dh/2;
   L.forEach((l,i)=>fitLine(ctx,l,cx,y0+(i-(n-1)/2)*fs*1.18,maxW,wt,fs,font));
-  if(dOn){ctx.globalAlpha=.8;ctx.letterSpacing=Math.round(dfs*.26)+'px';fitLine(ctx,DATE,cx,y0+(n-1)/2*fs*1.18+fs*.5+dh*.62,maxW,600,dfs,font);ctx.letterSpacing='0px';}ctx.restore();}
+  if(dOn){ctx.globalAlpha=S.dateColor?1:.8;if(S.dateColor)ctx.fillStyle=S.dateColor;ctx.letterSpacing=Math.round(dfs*.26)+'px';fitLine(ctx,DATE,cx,y0+(n-1)/2*fs*1.18+fs*.5+dh*.62,maxW,600,dfs,font);ctx.letterSpacing='0px';}ctx.restore();}
 function sprockets(ctx,x0,w,H,fr){ctx.fillStyle=fr.ink;for(let y=20;y<H-20;y+=46){[x0+10,x0+w-34].forEach(x=>{ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,24,26,5):ctx.rect(x,y,24,26);ctx.fill();});}}
 function stamp(ctx,x,y,size){if(!S.date)return;ctx.save();ctx.font=`700 ${size}px "Courier New",monospace`;ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillStyle='#ff8a2a';ctx.shadowColor='rgba(255,120,30,.8)';ctx.shadowBlur=size*.25;ctx.fillText(STAMP,x,y);ctx.restore();}
 function grid(ctx,W,H){ctx.strokeStyle='#d8e3ee';ctx.lineWidth=2;for(let x=0;x<W;x+=44){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}for(let y=0;y<H;y+=44){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}}
@@ -2635,7 +2657,7 @@ function fontPrevDraw(){const fk=$('optFont').value,txt=textLines($('optText').v
   Promise.race([Promise.all(want.map(k=>loadFont(k,ftxt))),new Promise(r=>setTimeout(r,4000))]).then(()=>{document.querySelector('.fpRow').style.opacity='';const keep={text:S.text,font:S.font,layout:S.layout,date:S.date,textColor:S.textColor};S.text=txt;S.font=fk;S.date=$('optDate').checked;S.textColor=tcVal();
     const wi=fpFrameIdx();const res=[];const kp=[shots,picked,qrOn,photoMode];shots=SAMPLE;picked=[0,1,2,3];qrOn=false;photoMode=toneDefault(wi);
     ['A','B'].forEach(ly=>{S.layout=ly;const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;FITMIN=1;compose(cv,wi,SAMPLE);res.push(FITMIN);
-      const out=$('fontCanvas'+ly),x=out.getContext('2d');const sw=ly==='A'?591:1181,top=1748-(ly==='A'?330:360);out.width=sw;out.height=1748-top;x.drawImage(cv,0,top,sw,1748-top,0,0,sw,1748-top);});
+      const out=$('fontCanvas'+ly),x=out.getContext('2d');if(fpFull()){const sw=ly==='A'?591:1181;out.width=sw;out.height=1748;x.drawImage(cv,0,0,sw,1748,0,0,sw,1748);return;}const sw=ly==='A'?591:1181,top=1748-(ly==='A'?330:360);out.width=sw;out.height=1748-top;x.drawImage(cv,0,top,sw,1748-top,0,0,sw,1748-top);});
     Object.assign(S,keep);shots=kp[0];picked=kp[1];qrOn=kp[2];photoMode=kp[3];
     const msg=(n,f)=>{const p=Math.round(f*100);return p>=99?`${n}: 그대로 들어가요.`:`${n}: ${p}% 크기로 줄어들어요.`;};
     const pct=Math.round(Math.min(...res)*100),m=$('fontFit');m.textContent=msg('2줄 띠',res[0])+'  ·  '+msg('2×2',res[1])+(pct<75?'  너무 작아요. 문구를 줄이거나 Enter로 두 줄로 나눠 보세요.':'');m.classList.toggle('warn',pct<75);});}
@@ -2643,7 +2665,7 @@ $('optFont').onchange=()=>{fontPrevUpd();fpkLabel();};$('optDate').addEventListe
 function missionRowState(){$('missionRow').classList.toggle('dis',!$('idMission').checked);}
 document.querySelectorAll('input[name="idle"]').forEach(r=>r.onchange=missionRowState);
 function qrKindState(){const on=$('optQr').checked;['qrKind','gasRow','upRow'].forEach(id=>{$(id).classList.toggle('dis',!on);$(id).querySelectorAll('input,button,select').forEach(i=>i.disabled=!on);});}
-function openSettings(){clearTimers();tlStop();stTab('deco');syncForm();rpRender('rpList');($('settings').hidden=false,zoomAllow(true));}
+function openSettings(){ADJ0=adjPick();clearTimers();tlStop();stTab('deco');syncForm();rpRender('rpList');($('settings').hidden=false,zoomAllow(true));}
 $('optQr').onchange=qrKindState;
 $('optLogo').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
   const s=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
@@ -2659,7 +2681,7 @@ $('gasTest').onclick=async()=>{const u=$('optGas').value.trim();$('gasMsg').clas
   if(!/^https:\/\/script\.google\.com\/(a\/macros\/[^\/]+|macros)\/s\/[^\/]+\/exec$/.test(u)){$('gasMsg').className='err';$('gasMsg').textContent='주소는 script.google.com으로 시작하고 /exec로 끝나야 해요. 주소창에 바뀌어 보이는 script.googleusercontent.com 주소는 쓰면 안 돼요.';return;}
   try{const r=await fetch(u+'?ping=1',{redirect:'follow'});const j=await r.json();if(j.ok){$('gasMsg').className='ok';$('gasMsg').textContent=`연결됐어요. 저장 폴더: ${j.folder||'포토부스'}`;}else throw 0;}
   catch(e){$('gasMsg').className='err';$('gasMsg').textContent='연결하지 못했어요. 배포할 때 「액세스 권한: 모든 사용자」로 했는지 확인해 주세요. 학교 계정(교육청)은 바깥 기기 접속이 막힐 수 있어 개인 구글 계정을 권해요.';}};
-$('setCancel').onclick=()=>{$('settings').hidden=true;goHome();};
+$('setCancel').onclick=()=>{if(ADJ0)Object.assign(S,ADJ0);$('settings').hidden=true;goHome();};
 const isFS=()=>!!(document.fullscreenElement||document.webkitFullscreenElement)||matchMedia('(display-mode: fullscreen),(display-mode: standalone)').matches||navigator.standalone;
 function goFS(){if(isFS())return;const el=document.documentElement;const f=el.requestFullscreen||el.webkitRequestFullscreen;if(!f)return;try{const r=f.call(el,{navigationUI:'hide'});if(r&&r.then)r.then(()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{});}catch(e){}}).catch(()=>{});}catch(e){}}
 $('fsBtn').onclick=()=>{const el=document.documentElement;if(!(el.requestFullscreen||el.webkitRequestFullscreen)){toast('이 브라우저는 전체 화면 버튼이 안 돼요. 공유(또는 ⋮) 메뉴 → 「홈 화면에 추가」로 만든 아이콘으로 열어 주세요',6000);return;}goFS();};
@@ -2691,7 +2713,7 @@ $('stNav').onclick=e=>{const b=e.target.closest('button');if(b)stTab(b.dataset.p
 function radioSet(name,v){const r=document.querySelector(`input[name="${name}"][value="${v}"]`);if(r)r.checked=true;}
 function radioGet(name,d){const r=document.querySelector(`input[name="${name}"]:checked`);return r?r.value:d;}
 function stSyncNew(){$('optConsent').checked=!!S.consent;$('optConsentText').value=S.consentText||DEF.consentText;$('optIdleOn').checked=S.idleOn!==false;radioSet('idleSec',String(S.idleSec||60));
-  $('optMulti').checked=!!S.multi;radioSet('maxN',String(S.maxN||4));radioSet('nMode',S.nMode||'free');radioSet('rpN',String(S.rpN||6));todayUI();multiState();idleState();consentState();fpkLabel();fpFrameFill();}
+  $('optMulti').checked=!!S.multi;radioSet('maxN',String(S.maxN||4));radioSet('nMode',S.nMode||'free');radioSet('rpN',String(S.rpN||6));todayUI();multiState();idleState();consentState();fpkLabel();fpFrameFill();adjUI();dcSet(S.dateColor||'');logoThumb();}
 function stSaveNew(){S.consent=$('optConsent').checked;S.consentText=$('optConsentText').value.trim()||DEF.consentText;S.idleOn=$('optIdleOn').checked;S.idleSec=+radioGet('idleSec',60);
   S.multi=$('optMulti').checked;S.maxN=+radioGet('maxN',4);S.nMode=radioGet('nMode','free');S.rpN=+radioGet('rpN',6);}
 function multiState(){const on=$('optMulti').checked;document.querySelectorAll('input[name="maxN"],input[name="nMode"]').forEach(i=>i.disabled=!on);}
@@ -2788,6 +2810,33 @@ function fpFrameFill(){const sel=$('fpFrame');const cur=sel.value||fpSel||(visFr
   sel.innerHTML=frameOrder().map(i=>FRAMES[i]).filter(f=>!f.png).map(f=>`<option value="${f.key}">${f.name}${S.frames.includes(f.key)?'':' (안 보이는 틀)'}</option>`).join('');
   sel.value=[...sel.options].some(o=>o.value===cur)?cur:(sel.options[0]&&sel.options[0].value)||'';fpSel=sel.value;}
 $('fpFrame').onchange=()=>{fpSel=$('fpFrame').value;fontPrevUpd();};
+
+/* ===== 글자·로고 크기와 위치, 날짜 색 ===== */
+const ADJK=['textScale','textDx','textDy','logoScale','logoDx','logoDy','dateColor'];let ADJ0=null;
+function adjPick(){const o={};ADJK.forEach(k=>o[k]=S[k]);return o;}
+function adjUI(){$('tsV').textContent=(+S.textScale||100)+'%';$('tpV').textContent=`${+S.textDx||0}, ${+S.textDy||0}mm`;$('lsV').textContent=(+S.logoScale||100)+'%';$('lpV').textContent=`${+S.logoDx||0}, ${+S.logoDy||0}mm`;
+  document.querySelectorAll('.adj [data-a^="l"]').forEach(b=>b.disabled=!logoImg);}
+function adjRedraw(){adjUI();fontPrevUpd();thumbsUpd();}
+document.addEventListener('click',e=>{const b=e.target.closest('.adj button[data-a]');if(!b)return;const a=b.dataset.a,cl=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
+  const step={ts:5,ls:10};
+  if(a==='ts-'||a==='ts+')S.textScale=cl((+S.textScale||100)+(a==='ts+'?step.ts:-step.ts),50,200);
+  else if(a==='tx-'||a==='tx+')S.textDx=cl((+S.textDx||0)+(a==='tx+'?1:-1),-30,30);
+  else if(a==='ty-'||a==='ty+')S.textDy=cl((+S.textDy||0)+(a==='ty+'?1:-1),-40,15);
+  else if(a==='t0'){S.textScale=100;S.textDx=0;S.textDy=0;}
+  else if(a==='ls-'||a==='ls+')S.logoScale=cl((+S.logoScale||100)+(a==='ls+'?step.ls:-step.ls),40,250);
+  else if(a==='lx-'||a==='lx+')S.logoDx=cl((+S.logoDx||0)+(a==='lx+'?1:-1),-20,60);
+  else if(a==='ly-'||a==='ly+')S.logoDy=cl((+S.logoDy||0)+(a==='ly+'?1:-1),-10,30);
+  else if(a==='l0'){S.logoScale=100;S.logoDx=0;S.logoDy=0;}
+  adjRedraw();});
+function dcSet(v){S.dateColor=v||'';$('dcAuto').checked=!v;$('dcPick').value=v||'#ffffff';$('dcPick').disabled=!v;document.querySelectorAll('#dcSw button').forEach(b=>b.classList.toggle('on',!!v&&b.dataset.c.toLowerCase()===v.toLowerCase()));}
+$('dcAuto').addEventListener('change',()=>{dcSet($('dcAuto').checked?'':$('dcPick').value);adjRedraw();});
+$('dcPick').addEventListener('input',()=>{dcSet($('dcPick').value);adjRedraw();});
+$('dcSw').addEventListener('click',e=>{const c=e.target.dataset&&e.target.dataset.c;if(!c)return;dcSet(c);adjRedraw();});
+function fpFull(){const r=document.querySelector('input[name="fpMode"]:checked');return !!r&&r.value==='full';}
+document.querySelectorAll('input[name="fpMode"]').forEach(r=>r.addEventListener('change',()=>{document.querySelector('.fontBox').classList.toggle('full',fpFull());fontPrevUpd();}));
+function logoThumb(){const t=$('logoThumb');if(logoImg){t.src=logoImg.src;t.hidden=false;$('logoNone').hidden=true;}else{t.hidden=true;$('logoNone').hidden=false;}adjUI();}
+$('optLogo').addEventListener('change',()=>setTimeout(()=>{logoThumb();fontPrevUpd();},400));
+$('logoClear').addEventListener('click',()=>setTimeout(()=>{logoThumb();fontPrevUpd();},50));
 })();
 
 </script>
