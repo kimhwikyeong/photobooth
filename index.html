@@ -476,6 +476,8 @@ html,body,.settings{touch-action:pan-x pan-y pinch-zoom}
 .mgvF small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #mgMsg.warn{color:#B3261E}
 
+.mgvW{display:grid;gap:.5cqw}.mgvW .btn{width:100%}
+
 </style>
 </head>
 <body>
@@ -2019,7 +2021,7 @@ const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
 /* ---------- 설정 ---------- */
 const ALL_FRAMES=['white','black','film','diary','festival','horror','night','crowe'];
 const DEF_MISSIONS=['셋이 똑같은 표정 짓기','선생님 흉내 내기','과학실 실험 포즈','가장 놀란 얼굴','손가락 하트 릴레이','서로 볼 콕','슬로모션 점프','눈 감고 브이','세상에서 제일 진지한 얼굴','별 보는 척하기','탈출 성공 만세','좀비처럼 다가가기'];
-const APP_VER='11월 12일 22:20 수정본';
+const APP_VER='11월 12일 21:17 수정본';
 const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n'),consent:false,consentText:'찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 행사가 끝나면 지워요.',idleOn:true,idleSec:60,multi:false,maxN:4,nMode:'free',rpN:6,order:[]};
 let S=Object.assign({},DEF);const OLD_CONSENT='찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 축제가 끝나면 지워요.';
 let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);if(S.consentText===OLD_CONSENT)S.consentText=DEF.consentText;}catch(e){}
@@ -2928,10 +2930,29 @@ $('mgClaim').onclick=async()=>{const g=$('optGas').value.trim()||S.gas;if(!g){mg
   catch(e){mgMsg('가져오지 못했어요. Apps Script를 새 버전으로 배포했는지 봐 주세요',1);}finally{$('mgClaim').disabled=false;}};
 async function mgView(id){const v=$('mgView');v.hidden=false;$('mgvTitle').textContent='불러오는 중…';$('mgvGrid').innerHTML='';$('mgvOpen').removeAttribute('href');
   try{const a=await gasPost({action:'manage_files',id},60000);$('mgvTitle').textContent=a.name;$('mgvOpen').href=a.url;
-    $('mgvGrid').innerHTML=(a.files||[]).map(f=>/^video/.test(f.mime)?`<a class="mgvF vid" href="${f.url}" target="_blank" rel="noopener"><span>▶</span><small>${esc(f.name)}</small></a>`:`<a class="mgvF" href="${f.url}" target="_blank" rel="noopener"><img loading="lazy" src="${thumbURL(f.id)}" alt=""><small>${esc(f.name)}</small></a>`).join('')||'<p class="note">파일이 없어요.</p>';}
+    $('mgvGrid').innerHTML=(a.files||[]).map(f=>/^video/.test(f.mime)?`<div class="mgvW"><a class="mgvF vid" href="${f.url}" target="_blank" rel="noopener"><span>▶</span><small>${esc(f.name)}</small></a></div>`:`<div class="mgvW"><a class="mgvF" href="${f.url}" target="_blank" rel="noopener"><img loading="lazy" src="${thumbURL(f.id)}" alt=""><small>${esc(f.name)}</small></a><button type="button" class="btn small go" data-rp="${f.id}">다시 인쇄</button></div>`).join('')||'<p class="note">파일이 없어요.</p>';}
   catch(e){$('mgvTitle').textContent='열지 못했어요';}}
 $('mgvClose').onclick=()=>{$('mgView').hidden=true;};
 $('devName').textContent=devId();
+
+/* ===== 드라이브 사진 다시 인쇄 ===== */
+/* 드라이브에 올라간 사진은 아이패드(사진 앱) 맞춤이 이미 들어간 그림이에요.
+   아이패드: 그대로 공유 창 → 프린트 / 갤럭시: 두 맞춤값의 차이만큼만 옮겨서 인쇄 창으로 */
+function shiftForPage(img){const dx=(CAL.p.dx-CAL.q.dx)*PX,dy=(CAL.p.dy-CAL.q.dy)*PX,k=CAL.p.sc/CAL.q.sc;
+  const o=document.createElement('canvas');o.width=1181;o.height=1748;const x=o.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,1181,1748);
+  const t=document.createElement('canvas');t.width=1181;t.height=1748;t.getContext('2d').drawImage(img,0,0,1181,1748);
+  const w=Math.round(1181*k),h=Math.round(1748*k),ox=Math.round((1181-w)/2+dx),oy=Math.round((1748-h)/2+dy);x.drawImage(t,ox,oy,w,h);
+  /* 비는 가장자리는 맨 끝 한 줄을 늘려 채움 */
+  if(ox>0)x.drawImage(t,0,0,1,1748,0,oy,ox,h);if(ox+w<1181)x.drawImage(t,1180,0,1,1748,ox+w,oy,1181-ox-w,h);
+  if(oy>0)x.drawImage(o,0,oy,1181,1,0,0,1181,oy);if(oy+h<1748)x.drawImage(o,0,oy+h-1,1181,1,0,oy+h,1181,1748-oy-h);return o;}
+async function mgReprint(id,btn){const old=btn.textContent;btn.disabled=true;btn.textContent='받는 중…';
+  try{const a=await gasPost({action:'manage_image',id},120000);const src=`data:${a.mime};base64,${a.data}`;const im=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src;});
+    if(printMode()==='share'){const bl=await (await fetch(src)).blob();const files=[new File([bl],a.name||`다시인쇄-${Date.now()}.jpg`,{type:a.mime||'image/jpeg'})];
+      if(navigator.canShare&&navigator.canShare({files})){btn.textContent='공유 창에서 프린트를 고르세요';try{await navigator.share({files});}catch(e){}return;}}
+    btn.textContent='인쇄 창을 여는 중…';printAt=Date.now();await printPages(shiftForPage(im).toDataURL('image/jpeg',.95),1);}
+  catch(e){toast('사진을 받지 못했어요. 인터넷과 Apps Script 새 버전 배포를 확인해 주세요');}
+  finally{btn.disabled=false;btn.textContent=old;}}
+$('mgvGrid').addEventListener('click',e=>{const b=e.target.closest('[data-rp]');if(b){e.preventDefault();mgReprint(b.dataset.rp,b);}});
 })();
 
 </script>
