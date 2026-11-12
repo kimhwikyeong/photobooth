@@ -421,6 +421,19 @@ html,body,.settings{touch-action:pan-x pan-y pinch-zoom}
 #optFrames .frmItem .fnm{width:auto;text-align:left;padding-right:3cqw}
 #optFrames:has(.thBox:not([hidden])) .frmItem .fnm{padding-right:.3cqw}
 
+.settings #optFont{display:none}
+.fpk{position:relative}
+.fpkBtn{font:inherit;width:100%;min-height:3.73cqw;border:.085cqw solid #D3CEC3;border-radius:1.02cqw;background:#fff;color:#222;display:flex;align-items:center;justify-content:space-between;padding:0 1.19cqw;font-size:1.44cqw;cursor:pointer}
+.fpkBtn i{font-style:normal;color:#9A958B;font-size:1.1cqw;font-family:"Noto Sans KR",sans-serif}
+.fpkList{position:absolute;left:0;right:0;top:calc(100% + .5cqw);z-index:20;background:#fff;border:.085cqw solid #D3CEC3;border-radius:1.19cqw;max-height:34cqw;overflow:auto;-webkit-overflow-scrolling:touch;padding:.5cqw}
+.fpkList[hidden]{display:none}
+.fpkG{margin:.7cqw .8cqw .3cqw;font-size:1.02cqw;color:#9A958B;font-weight:500}
+.fpkItem{display:grid;gap:.15cqw;width:100%;text-align:left;font:inherit;border:.085cqw solid transparent;background:none;border-radius:.85cqw;padding:.7cqw 1cqw;cursor:pointer;color:#222}
+.fpkItem.on{background:#EEF1F6;border-color:#2B3A55}
+.fpkN{font-size:1.36cqw;font-weight:500}
+.fpkS{font-size:1.7cqw;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.settings .fpk{flex:1 1 100%;width:100%}
+
 </style>
 </head>
 <body>
@@ -595,7 +608,7 @@ html,body,.settings{touch-action:pan-x pan-y pinch-zoom}
       <section class="stPage on" data-p="deco"><div class="stCols"><div><fieldset><legend><span class="lab">문구</span></legend>
         <div class="opts"><textarea id="optText" rows="2" maxlength="60" placeholder="예: 2026 중산제 · 2학년 8반 (Enter로 두 줄까지)"></textarea></div></fieldset><fieldset><legend><span class="lab">날짜 넣기</span></legend>
         <div class="opts"><label><input type="checkbox" id="optDate">사진에 오늘 날짜 (문구 아래에 작게)</label></div></fieldset><fieldset><legend><span class="lab">글꼴</span></legend>
-        <div class="opts"><select id="optFont"><option value="auto">틀마다 기본 글꼴</option><optgroup label="추천"><option value="batang">고운바탕 Bold (명조)</option><option value="myeongjo">나눔명조 ExtraBold</option><option value="notoserif">본명조 Bold (Noto Serif KR)</option><option value="hahmlet">함렛 (Hahmlet)</option><option value="dodum">고운돋움</option></optgroup><optgroup label="그 밖의 글꼴"><option value="gothic">고딕 (Gothic A1)</option><option value="nanumgothic">나눔고딕</option><option value="sunflower">해바라기 고딕 (Sunflower)</option><option value="dohyeon">반듯한 굵은 글씨 (도현)</option><option value="blackhan">아주 굵은 글씨 (검은고딕)</option><option value="jua">둥근 굵은 글씨 (주아)</option><option value="dongle">동글동글 (Dongle)</option><option value="cute">귀여운 글씨 (Cute Font)</option><option value="gaegu">손글씨 (개구)</option><option value="nanumpen">펜 손글씨 (나눔손글씨 펜)</option><option value="gamja">손글씨 (감자꽃)</option><option value="poorstory">손글씨 (서툰 이야기)</option><option value="himelody">손글씨 (하이 멜로디)</option><option value="singleday">동글 손글씨 (싱글데이)</option><option value="stylish">멋 글씨 (Stylish)</option><option value="yeonsung">붓글씨 (연성)</option><option value="dokdo">거친 붓글씨 (동해 독도)</option><option value="songmyung">옛 명조 (송명)</option><option value="notosans">본고딕 (Noto Sans KR)</option><option value="ibmplex">IBM 플렉스 고딕</option><option value="orbit">둥근 고딕 (Orbit)</option><option value="gugi">레트로 굵은 글씨 (구기)</option><option value="bagel">통통한 글씨 (베이글)</option><option value="gasoek">아주 두꺼운 글씨 (가석)</option><option value="kirang">붓 손글씨 (기랑해랑)</option><option value="bwpicture">흑백사진 손글씨</option><option value="nanumbrush">붓 손글씨 (나눔손글씨 붓)</option><option value="dokdo2">거친 손글씨 (독도)</option></optgroup></select></div></fieldset><fieldset><legend><span class="lab">글자 색</span></legend>
+        <div class="opts"><select id="optFont"><option value="auto">틀마다 기본 글꼴</option><optgroup label="추천"><option value="batang">고운바탕 Bold (명조)</option><option value="myeongjo">나눔명조 ExtraBold</option><option value="notoserif">본명조 Bold (Noto Serif KR)</option><option value="hahmlet">함렛 (Hahmlet)</option><option value="dodum">고운돋움</option></optgroup><optgroup label="그 밖의 글꼴"><option value="gothic">고딕 (Gothic A1)</option><option value="nanumgothic">나눔고딕</option><option value="sunflower">해바라기 고딕 (Sunflower)</option><option value="dohyeon">반듯한 굵은 글씨 (도현)</option><option value="blackhan">아주 굵은 글씨 (검은고딕)</option><option value="jua">둥근 굵은 글씨 (주아)</option><option value="dongle">동글동글 (Dongle)</option><option value="cute">귀여운 글씨 (Cute Font)</option><option value="gaegu">손글씨 (개구)</option><option value="nanumpen">펜 손글씨 (나눔손글씨 펜)</option><option value="gamja">손글씨 (감자꽃)</option><option value="poorstory">손글씨 (서툰 이야기)</option><option value="himelody">손글씨 (하이 멜로디)</option><option value="singleday">동글 손글씨 (싱글데이)</option><option value="stylish">멋 글씨 (Stylish)</option><option value="yeonsung">붓글씨 (연성)</option><option value="dokdo">거친 붓글씨 (동해 독도)</option><option value="songmyung">옛 명조 (송명)</option><option value="notosans">본고딕 (Noto Sans KR)</option><option value="ibmplex">IBM 플렉스 고딕</option><option value="orbit">둥근 고딕 (Orbit)</option><option value="gugi">레트로 굵은 글씨 (구기)</option><option value="bagel">통통한 글씨 (베이글)</option><option value="gasoek">아주 두꺼운 글씨 (가석)</option><option value="kirang">붓 손글씨 (기랑해랑)</option><option value="bwpicture">흑백사진 손글씨</option><option value="nanumbrush">붓 손글씨 (나눔손글씨 붓)</option><option value="dokdo2">거친 손글씨 (독도)</option></optgroup></select><div class="fpk" id="fpk"><button type="button" class="fpkBtn" id="fpkBtn" aria-haspopup="listbox"><span id="fpkName"></span><i>▾</i></button><div class="fpkList" id="fpkList" role="listbox" hidden></div></div></div></fieldset><fieldset><legend><span class="lab">글자 색</span></legend>
         <div class="opts tcRow"><label><input type="checkbox" id="tcAuto" checked>틀 기본색</label><input type="color" id="tcPick" value="#ffffff" disabled aria-label="글자 색 고르기"><span id="tcSw"><button type="button" data-c="#FFFFFF" style="background:#FFFFFF" aria-label="흰색"></button><button type="button" data-c="#1D1D1F" style="background:#1D1D1F" aria-label="검정"></button><button type="button" data-c="#E8D9B5" style="background:#E8D9B5" aria-label="베이지 금색"></button><button type="button" data-c="#D4AF37" style="background:#D4AF37" aria-label="금색"></button><button type="button" data-c="#B82229" style="background:#B82229" aria-label="빨강"></button><button type="button" data-c="#1B4332" style="background:#1B4332" aria-label="초록"></button><button type="button" data-c="#1F2A5A" style="background:#1F2A5A" aria-label="남색"></button></span></div>
         <p class="note">아래 문구 색이에요. 크로우 실험실의 「Dr.CROWE LAB 탈출 성공」 제목은 틀 색 그대로예요.</p></fieldset><fieldset><legend><span class="lab">로고</span></legend>
         <div class="opts"><input type="file" id="optLogo" accept="image/*"><button type="button" class="btn small" id="logoClear">지우기</button></div></fieldset></div><div class="stPrev"><fieldset class="stPrevCard"><legend><span class="lab">미리보기</span></legend><div class="fontBox"><div class="fpRow"><figure><canvas id="fontCanvasA" width="591" height="230"></canvas><figcaption>2줄 띠</figcaption></figure><figure><canvas id="fontCanvasB" width="1181" height="250"></canvas><figcaption>2×2</figcaption></figure></div><p class="note" id="fontFit"></p></div><p class="note">문구·글꼴·색을 바꾸면 바로 바뀌어요.</p></fieldset></div></div></section>
@@ -1946,10 +1959,10 @@ const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
 /* ---------- 설정 ---------- */
 const ALL_FRAMES=['white','black','film','diary','festival','horror','night','crowe'];
 const DEF_MISSIONS=['셋이 똑같은 표정 짓기','선생님 흉내 내기','과학실 실험 포즈','가장 놀란 얼굴','손가락 하트 릴레이','서로 볼 콕','슬로모션 점프','눈 감고 브이','세상에서 제일 진지한 얼굴','별 보는 척하기','탈출 성공 만세','좀비처럼 다가가기'];
-const APP_VER='11월 12일 20:20 수정본';
-const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n'),consent:false,consentText:'찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 축제가 끝나면 지워요.',idleOn:true,idleSec:60,multi:false,maxN:4,nMode:'free',rpN:6,order:[]};
-let S=Object.assign({},DEF);
-let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);}catch(e){}
+const APP_VER='11월 12일 21:10 수정본';
+const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n'),consent:false,consentText:'찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 행사가 끝나면 지워요.',idleOn:true,idleSec:60,multi:false,maxN:4,nMode:'free',rpN:6,order:[]};
+let S=Object.assign({},DEF);const OLD_CONSENT='찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 축제가 끝나면 지워요.';
+let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);if(S.consentText===OLD_CONSENT)S.consentText=DEF.consentText;}catch(e){}
 {const eq=(P,a,b,c)=>(+(S[P+'Scale']??100))===a&&(+(S[P+'Dx']||0))===b&&(+(S[P+'Dy']||0))===c;
  /* 예전 기본값을 그대로 쓰던 기기는 시험 인쇄로 맞춘 새 값으로 */
  if(eq('q',100,0,0)||eq('q',95.9,0,0)||eq('q',92.5,0,-0.5)||eq('q',94,0,-0.5)){S.qScale=92.5;S.qDx=0;S.qDy=-0.5;}
@@ -2383,7 +2396,7 @@ function usedInc(){try{localStorage.setItem('booth-used',String(usedGet()+1));}c
 function poolTarget(){return +S.poolN||100;}
 setInterval(()=>{if(S.qr&&S.gas){flushQueue();if(S.upMode==='later'&&cur==='idle'&&navigator.onLine&&poolGet().length<poolTarget())fillPool(poolTarget()).catch(()=>{});}},30000);
 addEventListener('online',()=>setTimeout(()=>flushQueue(),1500));
-async function toKeep(){const my=RUN;show('upload');$('upTitle').textContent='사진을 정리하고 있어요';
+async function toKeep(){const my=RUN;show('upload');{const n=document.querySelector('.upNote');if(n)n.textContent='사진은 행사가 끝난 뒤 올라가요. 지금은 QR이 열리지 않으니 집에 가서 QR로 꼭 받아 두세요!';}$('upTitle').textContent='사진을 정리하고 있어요';
   const vid=wantVideo()&&tlFrames.length>4;const st=['QR 준비하기','사진 보관하기',vid?'타임랩스 영상 만들기':null].filter(Boolean);
   $('upSteps').innerHTML=st.map(s=>`<li>${s}</li>`).join('');const lis=[...$('upSteps').children];
   const prog=(k,f=0)=>{lis.forEach((l,i)=>l.classList.toggle('on',i<=k));$('barFill').style.width=Math.round((k+f)/lis.length*100)+'%';};prog(0);
@@ -2397,7 +2410,7 @@ async function toKeep(){const my=RUN;show('upload');$('upTitle').textContent='�
     if(vid){prog(2);const v=await makeTimelapse(x=>prog(2,x*.9));if(v){const ext=v.type.includes('mp4')?'mp4':'webm';await qAdd({sid:f.sid,name:`${f.sid}_타임랩스.${ext}`,blob:v,t:Date.now()});}}
   }catch(e){}
   if(my!==RUN)return;$('barFill').style.width='100%';qStatus();later(300,()=>{toPrint();setTimeout(()=>flushQueue(),4000);});}
-async function toUpload(){if(S.upMode==='later')return toKeep();const my=RUN;show('upload');$('upTitle').textContent='사진을 저장하고 있어요';
+async function toUpload(){if(S.upMode==='later')return toKeep();const my=RUN;show('upload');{const n=document.querySelector('.upNote');if(n)n.textContent='QR 링크는 일주일 동안만 열려요. 집에 가기 전에 꼭 받아 두세요!';}$('upTitle').textContent='사진을 저장하고 있어요';
   const vid=wantVideo()&&tlFrames.length>4;
   const st=['드라이브 폴더 만들기','사진 올리기',vid?'타임랩스 영상 만들고 올리기':null].filter(Boolean);
   $('upSteps').innerHTML=st.map(s=>`<li>${s}</li>`).join('');const lis=[...$('upSteps').children];
@@ -2474,8 +2487,8 @@ function nUI(){const on=!!S.multi;$('nRow').hidden=!on;if(!on){printN=1;$('doPri
 $('nMinus').onclick=()=>{printN--;nUI();};$('nPlus').onclick=()=>{printN++;nUI();};
 $('nLock').onclick=()=>openPin(()=>{nUnlocked=true;nUI();},'장수 바꾸기 · 선생님 비밀번호');
 $('skipPrint').onclick=()=>toDone(false);
-function toDone(printed){show('done');$('doneTitle').textContent=printed?'사진이 나오고 있어요':'수고했어요';$('doneSub').hidden=!printed;
-  const q=$('doneQr');q.hidden=!qrOn;if(qrOn&&S.upMode==='later'){const ctx=$('qrBig').getContext('2d');ctx.clearRect(0,0,300,300);drawQR(ctx,0,0,300);$('qrCaption').textContent='휴대폰 카메라로 찍어 두세요 · 사진은 잠시 뒤에 올라가요 · 링크는 일주일 동안 열려요';}else if(qrOn){const ctx=$('qrBig').getContext('2d');ctx.clearRect(0,0,300,300);drawQR(ctx,0,0,300);$('qrCaption').textContent=(wantVideo()&&tlFrames.length>4)?'휴대폰 카메라로 찍으면 사진과 영상을 받아요 · 링크는 일주일 동안 열려요':'휴대폰 카메라로 찍으면 사진을 받아요 · 링크는 일주일 동안 열려요';}
+function toDone(printed){show('done');$('doneTitle').textContent=printed?'사진이 나오고 있어요':'찰칵! 오늘의 추억 완성';$('doneSub').hidden=!printed;
+  const q=$('doneQr');q.hidden=!qrOn;if(qrOn&&S.upMode==='later'){const ctx=$('qrBig').getContext('2d');ctx.clearRect(0,0,300,300);drawQR(ctx,0,0,300);$('qrCaption').textContent='휴대폰 카메라로 찍어 두세요 · 지금은 열리지 않아요. 사진은 행사가 끝난 뒤 올라가니 집에 가서 QR로 꼭 받아 두세요 · 링크는 일주일 동안 열려요';}else if(qrOn){const ctx=$('qrBig').getContext('2d');ctx.clearRect(0,0,300,300);drawQR(ctx,0,0,300);$('qrCaption').textContent=(wantVideo()&&tlFrames.length>4)?'휴대폰 카메라로 찍으면 사진과 영상을 받아요 · 링크는 일주일 동안 열려요':'휴대폰 카메라로 찍으면 사진을 받아요 · 링크는 일주일 동안 열려요';}
   let left=30;const t=()=>{$('doneLeft').textContent=`${left}초 뒤 처음 화면으로 돌아가요`;if(left<=0){goHome();return;}left--;later(1000,t);};t();}
 function goHome(){RUN++;S.layout=layouts()[0];clearTimers();tlStop();shooting=false;photoMode='color';shots=[];picked=[];tlFrames=[];retakeLeft=1;frame=0;qrUrl='';qrOn=false;escMin='';$('escMin').textContent='눌러서 적기';$('escMin').classList.add('empty');$('kpad').hidden=true;curMission='';$('mcard').classList.remove('flip');closeGuide();$('consent').hidden=true;$('rpView').hidden=true;printN=1;nUnlocked=false;ensureFrame();show('idle');renderIdle();}
 $('home').onclick=goHome;
@@ -2623,7 +2636,7 @@ function fontPrevDraw(){const fk=$('optFont').value,txt=textLines($('optText').v
     Object.assign(S,keep);
     const msg=(n,f)=>{const p=Math.round(f*100);return p>=99?`${n}: 그대로 들어가요.`:`${n}: ${p}% 크기로 줄어들어요.`;};
     const pct=Math.round(Math.min(...res)*100),m=$('fontFit');m.textContent=msg('2줄 띠',res[0])+'  ·  '+msg('2×2',res[1])+(pct<75?'  너무 작아요. 문구를 줄이거나 Enter로 두 줄로 나눠 보세요.':'');m.classList.toggle('warn',pct<75);});}
-$('optFont').onchange=fontPrevUpd;$('optText').addEventListener('input',fontPrevUpd);document.querySelectorAll('input[name="layout"]').forEach(r=>r.addEventListener('change',fontPrevUpd));
+$('optFont').onchange=()=>{fontPrevUpd();fpkLabel();};$('optDate').addEventListener('change',fontPrevUpd);$('optText').addEventListener('input',fontPrevUpd);document.querySelectorAll('input[name="layout"]').forEach(r=>r.addEventListener('change',fontPrevUpd));
 function missionRowState(){$('missionRow').classList.toggle('dis',!$('idMission').checked);}
 document.querySelectorAll('input[name="idle"]').forEach(r=>r.onchange=missionRowState);
 function qrKindState(){const on=$('optQr').checked;['qrKind','gasRow','upRow'].forEach(id=>{$(id).classList.toggle('dis',!on);$(id).querySelectorAll('input,button,select').forEach(i=>i.disabled=!on);});}
@@ -2658,7 +2671,7 @@ $('setForm').onsubmit=e=>{e.preventDefault();const fs=[...document.querySelector
   saveS();if(facingChanged)closeCamera();cam.classList.toggle('mirror',!!S.mirror);$('settings').hidden=true;toast('저장했어요');goHome();};
 
 function fitScr(){const sc=$('scr'),cs=getComputedStyle(sc);const h=sc.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),w=sc.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
-  const iw=Math.min(w,h*1.44);const inn=sc.querySelector('.inner');inn.style.width=iw+'px';}
+  const iw=Math.min(w,h*1.8);const inn=sc.querySelector('.inner');inn.style.width=iw+'px';}
 addEventListener('resize',fitScr);if(window.visualViewport)visualViewport.addEventListener('resize',fitScr);addEventListener('orientationchange',()=>setTimeout(fitScr,300));fitScr();
 show('idle');renderIdle();qStatus();try{$('appVer').textContent=APP_VER;}catch(e){}
 if(document.fonts)document.fonts.ready.then(()=>{if(cur==='idle')renderIdle();});
@@ -2675,7 +2688,7 @@ $('stNav').onclick=e=>{const b=e.target.closest('button');if(b)stTab(b.dataset.p
 function radioSet(name,v){const r=document.querySelector(`input[name="${name}"][value="${v}"]`);if(r)r.checked=true;}
 function radioGet(name,d){const r=document.querySelector(`input[name="${name}"]:checked`);return r?r.value:d;}
 function stSyncNew(){$('optConsent').checked=!!S.consent;$('optConsentText').value=S.consentText||DEF.consentText;$('optIdleOn').checked=S.idleOn!==false;radioSet('idleSec',String(S.idleSec||60));
-  $('optMulti').checked=!!S.multi;radioSet('maxN',String(S.maxN||4));radioSet('nMode',S.nMode||'free');radioSet('rpN',String(S.rpN||6));todayUI();multiState();idleState();consentState();}
+  $('optMulti').checked=!!S.multi;radioSet('maxN',String(S.maxN||4));radioSet('nMode',S.nMode||'free');radioSet('rpN',String(S.rpN||6));todayUI();multiState();idleState();consentState();fpkLabel();}
 function stSaveNew(){S.consent=$('optConsent').checked;S.consentText=$('optConsentText').value.trim()||DEF.consentText;S.idleOn=$('optIdleOn').checked;S.idleSec=+radioGet('idleSec',60);
   S.multi=$('optMulti').checked;S.maxN=+radioGet('maxN',4);S.nMode=radioGet('nMode','free');S.rpN=+radioGet('rpN',6);}
 function multiState(){const on=$('optMulti').checked;document.querySelectorAll('input[name="maxN"],input[name="nMode"]').forEach(i=>i.disabled=!on);}
@@ -2746,6 +2759,24 @@ $('exFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f
     saveS();refreshFonts();ensureFrame();syncForm();m.textContent=`가져왔어요${n?` · 틀 ${n}개`:''}. 「저장하고 닫기」를 눌러 마무리하세요.`;}
   catch(er){m.textContent='이 파일은 포토부스 설정 파일이 아니에요.';}};
 todayUI();
+
+/* ===== 글꼴 고르기: 목록에서 글꼴 모양을 바로 보고, 고른 글꼴이 맨 위에 ===== */
+const FPK_SAMPLE='2026 중산제 · 가나다 ABC 123';
+function fpkOpts(){return [...$('optFont').options].map(o=>({k:o.value,n:o.textContent,g:o.parentElement.tagName==='OPTGROUP'?o.parentElement.label:''}));}
+function fpkFam(k){return k==='auto'?'inherit':`${FONTS[k]},sans-serif`;}
+function fpkLabel(){const sel=$('optFont'),o=sel.options[sel.selectedIndex];$('fpkName').textContent=o?o.textContent:'';$('fpkName').style.fontFamily=fpkFam(sel.value);if(sel.value!=='auto')loadFont(sel.value,o?o.textContent:'');}
+function fpkItem(o,cur){const b=document.createElement('button');b.type='button';b.className='fpkItem'+(cur?' on':'');b.setAttribute('role','option');b.setAttribute('aria-selected',cur?'true':'false');
+  b.innerHTML=`<span class="fpkN"></span><span class="fpkS"></span>`;b.querySelector('.fpkN').textContent=(cur?'✓ ':'')+o.n;b.querySelector('.fpkS').textContent=o.k==='auto'?'틀마다 정해진 글꼴로 나와요':FPK_SAMPLE;
+  if(o.k!=='auto'){b.querySelector('.fpkS').style.fontFamily=fpkFam(o.k);b.querySelector('.fpkN').style.fontFamily=fpkFam(o.k);loadFont(o.k,o.n+FPK_SAMPLE);}
+  b.onclick=()=>{$('optFont').value=o.k;$('optFont').dispatchEvent(new Event('change',{bubbles:true}));fpkClose();};return b;}
+function fpkOpen(){const L=$('fpkList'),cur=$('optFont').value,all=fpkOpts();L.innerHTML='';
+  const c=all.find(o=>o.k===cur);if(c){const h=document.createElement('p');h.className='fpkG';h.textContent='지금 고른 글꼴';L.appendChild(h);L.appendChild(fpkItem(c,true));}
+  let g=null;all.filter(o=>o.k!==cur).forEach(o=>{const gg=o.g||'기본';if(gg!==g){g=gg;const h=document.createElement('p');h.className='fpkG';h.textContent=gg==='기본'?'기본':gg;L.appendChild(h);}L.appendChild(fpkItem(o,false));});
+  L.hidden=false;L.scrollTop=0;$('fpkBtn').setAttribute('aria-expanded','true');}
+function fpkClose(){$('fpkList').hidden=true;$('fpkBtn').setAttribute('aria-expanded','false');}
+$('fpkBtn').onclick=e=>{e.stopPropagation();$('fpkList').hidden?fpkOpen():fpkClose();};
+document.addEventListener('pointerdown',e=>{if(!$('fpkList').hidden&&!e.target.closest('#fpk'))fpkClose();});
+fpkLabel();
 })();
 
 </script>
