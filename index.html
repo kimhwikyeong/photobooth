@@ -451,6 +451,31 @@ html,body,.settings{touch-action:pan-x pan-y pinch-zoom}
 .fontBox.full .fpRow{align-items:flex-start}
 .fontBox.full canvas{height:36cqw!important;width:auto!important;max-width:none!important}
 
+.mgStats{display:grid;grid-template-columns:repeat(4,1fr);gap:.68cqw}
+.mgStats span{border:.085cqw solid #E5E1D8;border-radius:1.02cqw;background:#FAF8F3;padding:.8cqw;text-align:center;font-size:1.02cqw;color:#6F6B63;display:grid;gap:.2cqw}
+.mgStats b{font-size:1.86cqw;color:#222}.mgStats .mine{border-color:#2B3A55;background:#EEF1F6}.mgStats .mine b{color:#2B3A55}
+.mgList{display:grid;gap:.68cqw;max-height:40cqw;overflow:auto}
+.mgG{border:.085cqw solid #E5E1D8;border-radius:1.19cqw;background:#fff}
+.mgG summary{display:flex;align-items:center;gap:1cqw;padding:.9cqw 1.2cqw;cursor:pointer;font-size:1.27cqw}
+.mgG summary span{color:#6F6B63;font-size:1.1cqw}
+.mgR{display:flex;align-items:center;gap:.8cqw;padding:.6cqw 1.2cqw;border-top:.085cqw solid #E5E1D8;font-size:1.1cqw;flex-wrap:wrap}
+.mgR img,.mgR .noimg{width:3.4cqw;height:5cqw;object-fit:cover;border-radius:.4cqw;background:#F0EEE8;border:.085cqw solid #E5E1D8;display:block}
+.mgR .no{font-weight:700;min-width:5cqw}.mgR .tm{color:#6F6B63;min-width:4cqw}
+.mgR .nm{color:#9A958B;font-size:.95cqw;flex:1;min-width:10cqw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mgR em.c{font-style:normal;font-size:1cqw;border:.085cqw solid #D3CEC3;border-radius:999px;padding:.1cqw .8cqw;color:#6F6B63}
+.mgR em.ok{border-color:#2F7D57;color:#2F7D57}.mgR em.me{border-color:#2B3A55;color:#2B3A55;background:#EEF1F6}.mgR em.wait{border-color:#B3261E;color:#B3261E}.mgR em.ot{color:#9A958B}
+.mgCk input{position:static!important;opacity:1!important;width:1.7cqw!important;height:1.7cqw!important;pointer-events:auto!important;accent-color:#2B3A55}
+.mgView{position:fixed;inset:0;z-index:30;background:rgba(34,34,34,.4);display:grid;place-items:center}
+.mgView[hidden]{display:none}
+.mgvBox{width:min(90vw,1000px);max-height:86vh;overflow:auto;background:#FAF8F3;border:.085cqw solid #E5E1D8;border-radius:1.7cqw;padding:1.7cqw;display:grid;gap:1.2cqw}
+.mgvHd{display:flex;align-items:center;gap:1cqw}.mgvHd b{flex:1;font-size:1.4cqw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mgvGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1cqw}
+.mgvF{display:grid;gap:.4cqw;text-decoration:none;color:#6F6B63;font-size:.95cqw;border:.085cqw solid #E5E1D8;border-radius:1.02cqw;background:#fff;padding:.6cqw}
+.mgvF img{width:100%;aspect-ratio:1181/1748;object-fit:cover;border-radius:.5cqw;background:#F0EEE8}
+.mgvF.vid span{display:grid;place-items:center;aspect-ratio:1181/1748;background:#222;color:#fff;font-size:3cqw;border-radius:.5cqw}
+.mgvF small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#mgMsg.warn{color:#B3261E}
+
 </style>
 </head>
 <body>
@@ -635,7 +660,8 @@ html,body,.settings{touch-action:pan-x pan-y pinch-zoom}
         <div class="logoRow"><div class="logoPrev"><img id="logoThumb" alt="로고" hidden><span id="logoNone">로고 없음</span></div><div class="opts"><input type="file" id="optLogo" accept="image/*"><button type="button" class="btn small" id="logoClear">지우기</button></div></div>
         <div class="adj"><span class="optCap">로고 크기</span><button type="button" data-a="ls-" aria-label="로고 작게">−</button><b id="lsV">100%</b><button type="button" data-a="ls+" aria-label="로고 크게">＋</button>
           <span class="optCap sp">위치</span><button type="button" data-a="ly-" aria-label="위로">↑</button><button type="button" data-a="ly+" aria-label="아래로">↓</button><button type="button" data-a="lx-" aria-label="왼쪽으로">←</button><button type="button" data-a="lx+" aria-label="오른쪽으로">→</button><b id="lpV">0, 0mm</b><button type="button" data-a="l0" class="soft">되돌리기</button></div>
-        <p class="note">로고를 키울 때는 미리보기 「전체」에서 QR 자리와 겹치지 않는지 확인해 주세요.</p></fieldset></div><div class="stPrev"><fieldset class="stPrevCard"><legend><span class="lab">미리보기</span></legend><div class="opts fpModeRow"><label><input type="radio" name="fpMode" value="bottom" checked>아래 문구</label><label><input type="radio" name="fpMode" value="full">전체 (로고 포함)</label></div><div class="fontBox"><label class="fpFrRow"><span>틀</span><select id="fpFrame" aria-label="미리볼 틀"></select></label><div class="fpRow"><figure><canvas id="fontCanvasA" width="591" height="230"></canvas><figcaption>2줄 띠</figcaption></figure><figure><canvas id="fontCanvasB" width="1181" height="250"></canvas><figcaption>2×2</figcaption></figure></div><p class="note" id="fontFit"></p></div><p class="note">문구·글꼴·색을 바꾸면 바로 바뀌어요.</p></fieldset></div></div></section>
+        <p class="note">로고를 키울 때는 미리보기 「전체」에서 QR 자리와 겹치지 않는지 확인해 주세요.</p></fieldset></div><div class="stPrev"><fieldset class="stPrevCard"><legend><span class="lab">미리보기</span></legend><div class="opts fpModeRow"><label><input type="radio" name="fpMode" value="bottom" checked>아래 문구</label><label><input type="radio" name="fpMode" value="full">전체 (로고 포함)</label></div><div class="fontBox"><label class="fpFrRow"><span>틀</span><select id="fpFrame" aria-label="미리볼 틀"></select></label><div class="fpRow"><figure><canvas id="fontCanvasA" width="591" height="230"></canvas><figcaption>2줄 띠</figcaption></figure><figure><canvas id="fontCanvasB" width="1181" height="250"></canvas><figcaption>2×2</figcaption></figure></div><p class="note" id="fontFit"></p></div><p class="note">문구·글꼴·색을 바꾸면 바로 바뀌어요.</p></fieldset></div></div>
+      </section>
       <section class="stPage" data-p="frames"><fieldset><legend><span class="lab">인쇄 배치</span></legend>
         <div class="opts"><label><input type="checkbox" name="layout" value="A" id="lyA">2줄 띠 (잘라서 둘이 나눔)</label><label><input type="checkbox" name="layout" value="B" id="lyB">큰 4장 (2 × 2)</label><span class="note">둘 다 고르면 학생이 시작할 때 골라요.</span></div></fieldset><fieldset><legend><span class="lab">보일 틀</span></legend>
         <div><p class="note" style="margin:0 0 .6cqw">누르면 켜고 꺼요 · ⠿를 끌어 순서를 바꿔요 (학생 화면에 이 순서로 나와요)</p><label class="thumbToggle"><input type="checkbox" id="optThumbs">미리보기 보기</label><div class="opts" id="optFrames"></div><p class="err" id="frameErr" hidden>틀을 하나 이상 켜 주세요.</p><div class="row2" style="margin-top:.8cqw"><button type="button" class="btn small" id="testPrint">체크한 틀 시험 인쇄</button><span class="note">견본 사진으로 체크한 틀 × 체크한 배치만큼 한 장씩 인쇄해요.</span></div></div></fieldset><fieldset class="cf"><legend><span class="lab">틀 추가</span></legend>
@@ -699,7 +725,17 @@ html,body,.settings{touch-action:pan-x pan-y pinch-zoom}
         <p class="note">「인터넷이 될 때 올리기」: 미리 만든 폴더의 QR을 바로 넣고, 사진은 태블릿에 모아 두었다가 인터넷이 되면 저절로 올려요. 프린터에 직접 연결해 인터넷이 없을 때 쓰세요. 공유기가 있을 때도 그대로 쓸 수 있어요. 폴더는 6개씩 한꺼번에 만들고, 중간에 설정을 닫아도 인터넷이 되면 첫 화면에서 계속 채워요.</p>
         <div class="row2"><label>미리 만들 폴더 <select id="optPoolN"><option value="50">50개</option><option value="100">100개</option><option value="150">150개</option><option value="200">200개</option></select></label>
         <button type="button" class="btn small" id="poolFill">폴더 미리 만들기</button><button type="button" class="btn small" id="qFlush">지금 올리기</button></div>
-        <div class="poolStats" id="poolStats"></div><div class="row2"><span class="note" id="poolMsg"></span><button type="button" class="btn small" id="usedReset">쓴 폴더 수 0으로</button></div></div></fieldset></div></div></section>
+        <div class="poolStats" id="poolStats"></div><div class="row2"><span class="note" id="poolMsg"></span><button type="button" class="btn small" id="usedReset">쓴 폴더 수 0으로</button></div></div></fieldset></div></div>
+      <fieldset id="mgRow" class="mgCard"><legend><span class="lab">드라이브 폴더 관리</span></legend>
+        <p class="note">이 기기 이름: <b id="devName"></b> · 폴더마다 번호가 붙어요. 여러 태블릿이 같은 저장 주소를 써도 같은 폴더를 쓰지 않게 기기별로 나눠 가져요.</p>
+        <div class="row2"><button type="button" class="btn small go" id="mgLoad">폴더 불러오기</button><button type="button" class="btn small" id="mgClaim">빈 폴더 이 기기로 가져오기</button></div>
+        <p class="note" id="mgMsg"></p>
+        <div id="mgSum"></div>
+        <div class="mgList" id="mgList"></div>
+        <div class="row2"><button type="button" class="btn small" id="mgDel" disabled>선택한 폴더 지우기</button><span class="note">지운 폴더는 드라이브 휴지통으로 가요(30일 안에 되살릴 수 있어요).</span></div>
+        <div class="mgView" id="mgView" hidden><div class="mgvBox"><div class="mgvHd"><b id="mgvTitle"></b><a class="btn small" id="mgvOpen" target="_blank" rel="noopener">드라이브에서 열기</a><button type="button" class="btn small" id="mgvClose">닫기</button></div><div class="mgvGrid" id="mgvGrid"></div></div></div>
+      </fieldset>
+      </section>
       <section class="stPage" data-p="dev"><fieldset><legend><span class="lab">설정 옮기기</span></legend>
         <div class="opts"><label><input type="checkbox" id="exSet" checked>설정</label><label><input type="checkbox" id="exLogo" checked>로고</label><label><input type="checkbox" id="exFrames" checked>추가한 틀</label></div>
         <div class="row2"><button type="button" class="btn small go" id="exOut">파일로 내보내기</button><label class="btn small" id="exInLab">파일 가져오기<input type="file" id="exFile" accept=".json,application/json" hidden></label><span class="note" id="exMsg"></span></div>
@@ -1983,7 +2019,7 @@ const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
 /* ---------- 설정 ---------- */
 const ALL_FRAMES=['white','black','film','diary','festival','horror','night','crowe'];
 const DEF_MISSIONS=['셋이 똑같은 표정 짓기','선생님 흉내 내기','과학실 실험 포즈','가장 놀란 얼굴','손가락 하트 릴레이','서로 볼 콕','슬로모션 점프','눈 감고 브이','세상에서 제일 진지한 얼굴','별 보는 척하기','탈출 성공 만세','좀비처럼 다가가기'];
-const APP_VER='11월 12일 21:40 수정본';
+const APP_VER='11월 12일 22:00 수정본';
 const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n'),consent:false,consentText:'찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 행사가 끝나면 지워요.',idleOn:true,idleSec:60,multi:false,maxN:4,nMode:'free',rpN:6,order:[]};
 let S=Object.assign({},DEF);const OLD_CONSENT='찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 축제가 끝나면 지워요.';
 let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);if(S.consentText===OLD_CONSENT)S.consentText=DEF.consentText;}catch(e){}
@@ -2378,9 +2414,12 @@ function renderSwatches(){$('swatches').innerHTML='';visFrames().forEach(i=>{con
 $('toNext').onclick=()=>{if(S.qr&&S.gas)toUpload();else{qrOn=false;toPrint();}};
 
 /* ---------- 드라이브에 저장 · QR ---------- */
+function devId(){let d='';try{d=localStorage.getItem('booth-dev')||'';}catch(e){}if(!d){d=(IOS?'아이패드':'갤럭시')+'-'+Math.random().toString(36).slice(2,6);try{localStorage.setItem('booth-dev',d);}catch(e){}}return d;}
+function usedSids(){try{return JSON.parse(localStorage.getItem('booth-used-sids')||'[]');}catch(e){return [];}}
+function usedSidAdd(sid){if(!sid)return;const L=usedSids();L.push(sid);try{localStorage.setItem('booth-used-sids',JSON.stringify(L.slice(-1000)));}catch(e){}}
 function sidNow(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}-${Math.random().toString(36).slice(2,5)}`;}
 function blobToDataURL(b){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b);});}
-async function gasPost(obj,ms=60000){const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),ms);
+async function gasPost(obj,ms=60000){obj=Object.assign({dev:devId()},obj);const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),ms);
   try{const r=await fetch(S.gas,{method:'POST',body:JSON.stringify(obj),signal:ctl.signal,redirect:'follow'});const j=await r.json();if(!j.ok)throw new Error(j.error||'저장 실패');return j;}finally{clearTimeout(t);}}
 let lastSid='';
 /* ---------- 나중에 올리기: 미리 만든 폴더 + 태블릿 보관함 ---------- */
@@ -2395,7 +2434,7 @@ const qAll=()=>qTx('readonly',st=>st.getAll());
 const qDel=id=>qTx('readwrite',st=>st.delete(id));
 let qCount=0;
 async function qStatus(){try{qCount=(await qTx('readonly',st=>st.count()))||0;}catch(e){qCount=0;}
-  const st=$('poolStats');if(st)st.innerHTML=`<span><b>${poolGet().length}</b>미리 만든 폴더</span><span><b>${usedGet()}</b>지금까지 쓴 폴더</span><span><b>${qCount}</b>태블릿에 보관 중인 파일</span>`;}
+  const st=$('poolStats');const nos=poolGet().map(x=>+x.no||0).filter(Boolean);const rng=nos.length?`${Math.min(...nos)}~${Math.max(...nos)}번`:'';if(st)st.innerHTML=`<span><b>${poolGet().length}</b>미리 만든 폴더${rng?` · ${rng}`:''}</span><span><b>${usedGet()}</b>지금까지 쓴 폴더</span><span><b>${qCount}</b>태블릿에 보관 중인 파일</span>`;}
 let flushing=false;
 async function flushQueue(force){if(flushing||!S.gas)return;if(!force&&(cur==='shoot'||!navigator.onLine))return;flushing=true;
   try{const items=await qAll();for(const it of items){if(!force&&cur==='shoot')break;
@@ -2405,7 +2444,7 @@ let filling=false,fillN=0,batchOK=null;
 function poolPush(items,onp,target){const list=poolGet();items.forEach(x=>list.push(x));poolSet(list);onp&&onp(list.length,target);}
 async function fillPool(target,onp){if(filling||!S.gas)return poolGet().length;filling=true;let fail=0,inflight=0;
   const need=k=>Math.max(0,target-poolGet().length-inflight);
-  const one=async()=>{const sid=sidNow()+'-'+(fillN++);const a=await gasPost({action:'folder',sid},30000);if(a&&a.folderUrl)poolPush([{sid,url:a.folderUrl}],onp,target);else throw 0;};
+  const one=async()=>{const sid=sidNow()+'-'+(fillN++);const a=await gasPost({action:'folder',sid},30000);if(a&&a.folderUrl)poolPush([{sid,url:a.folderUrl,no:a.no||0}],onp,target);else throw 0;};
   try{
     // 1) 한 번에 여러 개 (새 Code.gs). 첫 묶음은 혼자 보내서 되는지 확인
     const batch=async n=>{const sids=Array.from({length:n},()=>sidNow()+'-'+(fillN++));inflight+=n;
@@ -2426,7 +2465,7 @@ async function toKeep(){const my=RUN;show('upload');{const n=document.querySelec
   $('upSteps').innerHTML=st.map(s=>`<li>${s}</li>`).join('');const lis=[...$('upSteps').children];
   const prog=(k,f=0)=>{lis.forEach((l,i)=>l.classList.toggle('on',i<=k));$('barFill').style.width=Math.round((k+f)/lis.length*100)+'%';};prog(0);
   let list=poolGet(),f=list.shift();
-  if(f)poolSet(list);else{try{const sid=sidNow();const a=await gasPost({action:'folder',sid},8000);f={sid,url:a.folderUrl};}catch(e){f=null;}}
+  if(f)poolSet(list);else{try{const sid=sidNow();const a=await gasPost({action:'folder',sid},8000);f={sid,url:a.folderUrl,no:a.no||0};}catch(e){f=null;}}if(f)usedSidAdd(f.sid);
   if(my!==RUN)return;
   if(!f){qrUrl='';qrOn=false;$('upTitle').textContent='미리 만든 폴더가 없어서 QR 없이 인쇄할게요';$('barFill').style.width='100%';later(2200,toPrint);return;}
   qrUrl=f.url;qrOn=true;lastSid=f.sid;usedInc();prog(1);
@@ -2443,7 +2482,7 @@ async function toUpload(){if(S.upMode==='later')return toKeep();const my=RUN;sho
   prog(0);
   try{
     lastSid=sidNow();
-    const a=await gasPost({action:'folder',sid:lastSid},30000);if(my!==RUN)return;qrUrl=a.folderUrl;qrOn=true;usedInc();prog(1);
+    const a=await gasPost({action:'folder',sid:lastSid},30000);if(my!==RUN)return;usedSidAdd(lastSid);qrUrl=a.folderUrl;qrOn=true;usedInc();prog(1);
     const cv=document.createElement('canvas');cv.width=1181;cv.height=1748;compose(cv);
     await gasPost({action:'file',sid:lastSid,name:`${lastSid}_네컷.jpg`,data:calib(cv,'photo').toDataURL('image/jpeg',.92)});
     if(vid){prog(2);const v=await makeTimelapse(f=>prog(2,f*.6));if(v){const ext=v.type.includes('mp4')?'mp4':'webm';
@@ -2837,6 +2876,56 @@ document.querySelectorAll('input[name="fpMode"]').forEach(r=>r.addEventListener(
 function logoThumb(){const t=$('logoThumb');if(logoImg){t.src=logoImg.src;t.hidden=false;$('logoNone').hidden=true;}else{t.hidden=true;$('logoNone').hidden=false;}adjUI();}
 $('optLogo').addEventListener('change',()=>setTimeout(()=>{logoThumb();fontPrevUpd();},400));
 $('logoClear').addEventListener('click',()=>setTimeout(()=>{logoThumb();fontPrevUpd();},50));
+
+/* ===== 드라이브 폴더 관리 ===== */
+let MG=[],mgSel=new Set(),mgDelArm=0;
+const thumbURL=id=>`https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w320`;
+const dkey=t=>{const d=new Date(t);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+const dlabel=k=>{const [y,m,d]=k.split('-');return `${+m}월 ${+d}일`;};
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function mgMsg(t,bad){$('mgMsg').textContent=t;$('mgMsg').classList.toggle('warn',!!bad);}
+async function mgLoad(after){const g=$('optGas').value.trim()||S.gas;if(!g){mgMsg('저장 주소를 먼저 넣어 주세요',1);return;}S.gas=g;
+  mgMsg('불러오는 중… 폴더가 많으면 1분쯤 걸려요');$('mgLoad').disabled=true;
+  try{const a=await gasPost({action:'manage_list'},300000);MG=a.folders||[];mgSel.clear();
+    if(!a.more){/* 드라이브에 없거나 이미 사진이 들어간 폴더는 이 기기의 미리 만든 폴더에서 빼기 */const ok=new Set(MG.filter(f=>!f.photos&&!f.videos).map(f=>f.sid));const pool=poolGet();const keep=pool.filter(x=>ok.has(x.sid));if(keep.length<pool.length){poolSet(keep);mgMsg(`드라이브에 없거나 이미 쓴 폴더 ${pool.length-keep.length}개를 이 기기 목록에서 뺐어요`);}else mgMsg(`폴더 ${MG.length}개를 불러왔어요`);}
+    else mgMsg(`폴더가 너무 많아서 ${MG.length}개까지만 불러왔어요`,1);
+    mgRender();qStatus();if(typeof after==='string')mgMsg(after);}
+  catch(e){mgMsg('불러오지 못했어요. 인터넷과 저장 주소를 확인하고, Apps Script를 새 버전으로 배포했는지 봐 주세요',1);}finally{$('mgLoad').disabled=false;}}
+function mgRender(){const me=devId(),pool=new Set(poolGet().map(x=>x.sid)),used=new Set(usedSids());
+  const has=f=>f.photos+f.videos>0,empty=MG.filter(f=>!has(f)),full=MG.filter(has);
+  const nos=MG.map(f=>f.no).filter(Boolean),fnos=full.map(f=>f.no).filter(Boolean);
+  const mine=empty.filter(f=>f.dev===me),other=empty.filter(f=>f.dev&&f.dev!==me),free=empty.filter(f=>!f.dev);
+  const usable=empty.filter(f=>pool.has(f.sid)).length,waiting=empty.filter(f=>used.has(f.sid)).length;
+  const R=a=>a.length?`${Math.min(...a)}~${Math.max(...a)}번`:'-';
+  $('mgSum').innerHTML=`<div class="mgStats"><span><b>${MG.length}</b>전체 폴더 · ${R(nos)}</span><span><b>${full.length}</b>사진이 저장된 폴더 · ${R(fnos)}</span><span><b>${empty.length}</b>빈 폴더</span><span class="mine"><b>${usable}</b>이 기기에서 바로 쓸 수 있는 폴더</span></div>
+    <p class="note">빈 폴더 ${empty.length}개 = 이 기기(${esc(me)}) 몫 ${mine.length}개 · 다른 기기 몫 ${other.length}개 · 주인 없음 ${free.length}개${waiting?` · 이 기기에서 찍고 아직 안 올린 폴더 ${waiting}개`:''}. 「빈 폴더 이 기기로 가져오기」를 누르면 이 기기 몫과 주인 없는 빈 폴더를 이 기기에서 쓸 수 있게 가져와요.</p>`;
+  const groups={};MG.forEach(f=>{const k=dkey(f.first||f.created);(groups[k]=groups[k]||[]).push(f);});
+  const keys=Object.keys(groups).sort().reverse();
+  $('mgList').innerHTML=keys.length?keys.map(k=>{const L=groups[k].sort((a,b)=>(b.no||0)-(a.no||0)||b.created-a.created);const nf=L.filter(has).length;
+    return `<details class="mgG" ${keys.length<=2?'open':''}><summary><label class="mgCk" onclick="event.stopPropagation()"><input type="checkbox" data-g="${k}"></label><b>${dlabel(k)}</b><span>사진 있는 폴더 ${nf}개 · 빈 폴더 ${L.length-nf}개</span></summary>
+      ${L.map(f=>{const st=has(f)?`<em class="c ok">사진 ${f.photos}${f.videos?` · 영상 ${f.videos}`:''}</em>`:`<em class="c">빈 폴더</em>`;
+        const own=has(f)?'':(pool.has(f.sid)?'<em class="c me">이 기기에 받아 둠</em>':used.has(f.sid)?'<em class="c wait">찍음 · 올리기 전</em>':f.dev===me?'<em class="c me">이 기기 몫</em>':f.dev?`<em class="c ot">${esc(f.dev)}</em>`:'<em class="c">주인 없음</em>');
+        const tm=new Date(f.first||f.created);return `<div class="mgR"><label class="mgCk"><input type="checkbox" data-id="${f.id}" ${mgSel.has(f.id)?'checked':''}></label>${f.thumb?`<img loading="lazy" src="${thumbURL(f.thumb)}" alt="">`:'<i class="noimg"></i>'}<span class="no">${f.no?`#${f.no}`:'번호 없음'}</span><span class="tm">${String(tm.getHours()).padStart(2,'0')}:${String(tm.getMinutes()).padStart(2,'0')}</span>${st}${own}<span class="nm">${esc(f.name)}</span>${has(f)?`<button type="button" class="btn small" data-view="${f.id}">보기</button>`:''}</div>`;}).join('')}</details>`;}).join(''):'<p class="note">폴더가 없어요.</p>';
+  mgDelUI();}
+function mgDelUI(){const n=mgSel.size;$('mgDel').disabled=!n;$('mgDel').textContent=n?`선택한 폴더 ${n}개 지우기`:'선택한 폴더 지우기';mgDelArm=0;}
+$('mgList').addEventListener('change',e=>{const c=e.target;if(c.dataset.id){c.checked?mgSel.add(c.dataset.id):mgSel.delete(c.dataset.id);}
+  else if(c.dataset.g){const ids=MG.filter(f=>dkey(f.first||f.created)===c.dataset.g).map(f=>f.id);ids.forEach(id=>c.checked?mgSel.add(id):mgSel.delete(id));c.closest('details').querySelectorAll('input[data-id]').forEach(x=>x.checked=c.checked);}mgDelUI();});
+$('mgList').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b)mgView(b.dataset.view);});
+$('mgLoad').onclick=()=>mgLoad();
+$('mgDel').onclick=async()=>{const ids=[...mgSel];if(!ids.length)return;const sel=MG.filter(f=>mgSel.has(f.id)),emp=sel.filter(f=>!(f.photos+f.videos)).length;
+  if(Date.now()-mgDelArm>5000){mgDelArm=Date.now();$('mgDel').textContent=`정말 ${ids.length}개를 지울까요? 한 번 더 누르세요`;mgMsg(emp?`이 중 빈 폴더 ${emp}개는 QR로 쓸 수 있는 폴더예요. 다른 태블릿이 받아 둔 폴더라면 그 태블릿의 QR이 열리지 않게 돼요.`:'사진이 든 폴더를 지우면 그 QR로는 더 이상 사진을 받을 수 없어요.',1);return;}
+  $('mgDel').disabled=true;mgMsg('지우는 중…');try{const a=await gasPost({action:'manage_delete',ids},300000);const gone=new Set(sel.map(f=>f.sid));poolSet(poolGet().filter(x=>!gone.has(x.sid)));await mgLoad(`${a.deleted}개를 휴지통으로 옮겼어요`);}catch(e){mgMsg('지우지 못했어요',1);}finally{mgDelUI();}};
+$('mgClaim').onclick=async()=>{const g=$('optGas').value.trim()||S.gas;if(!g){mgMsg('저장 주소를 먼저 넣어 주세요',1);return;}S.gas=g;const want=Math.max(0,poolTarget()-poolGet().length);
+  if(!want){mgMsg(`이미 ${poolGet().length}개를 받아 두었어요 (목표 ${poolTarget()}개)`);return;}
+  $('mgClaim').disabled=true;mgMsg('빈 폴더를 찾는 중…');try{const a=await gasPost({action:'claim',n:want,exclude:poolGet().map(x=>x.sid).concat(usedSids())},300000);
+    poolPush(a.folders||[]);const cm=`빈 폴더 ${(a.folders||[]).length}개를 이 기기로 가져왔어요${(a.folders||[]).length<want?' · 더 필요하면 「폴더 미리 만들기」를 눌러 주세요':''}`;mgMsg(cm);qStatus();if(MG.length)await mgLoad(cm);}
+  catch(e){mgMsg('가져오지 못했어요. Apps Script를 새 버전으로 배포했는지 봐 주세요',1);}finally{$('mgClaim').disabled=false;}};
+async function mgView(id){const v=$('mgView');v.hidden=false;$('mgvTitle').textContent='불러오는 중…';$('mgvGrid').innerHTML='';$('mgvOpen').removeAttribute('href');
+  try{const a=await gasPost({action:'manage_files',id},60000);$('mgvTitle').textContent=a.name;$('mgvOpen').href=a.url;
+    $('mgvGrid').innerHTML=(a.files||[]).map(f=>/^video/.test(f.mime)?`<a class="mgvF vid" href="${f.url}" target="_blank" rel="noopener"><span>▶</span><small>${esc(f.name)}</small></a>`:`<a class="mgvF" href="${f.url}" target="_blank" rel="noopener"><img loading="lazy" src="${thumbURL(f.id)}" alt=""><small>${esc(f.name)}</small></a>`).join('')||'<p class="note">파일이 없어요.</p>';}
+  catch(e){$('mgvTitle').textContent='열지 못했어요';}}
+$('mgvClose').onclick=()=>{$('mgView').hidden=true;};
+$('devName').textContent=devId();
 })();
 
 </script>
