@@ -2019,7 +2019,7 @@ const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
 /* ---------- 설정 ---------- */
 const ALL_FRAMES=['white','black','film','diary','festival','horror','night','crowe'];
 const DEF_MISSIONS=['셋이 똑같은 표정 짓기','선생님 흉내 내기','과학실 실험 포즈','가장 놀란 얼굴','손가락 하트 릴레이','서로 볼 콕','슬로모션 점프','눈 감고 브이','세상에서 제일 진지한 얼굴','별 보는 척하기','탈출 성공 만세','좀비처럼 다가가기'];
-const APP_VER='11월 12일 22:00 수정본';
+const APP_VER='11월 12일 22:10 수정본';
 const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n'),consent:false,consentText:'찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 행사가 끝나면 지워요.',idleOn:true,idleSec:60,multi:false,maxN:4,nMode:'free',rpN:6,order:[]};
 let S=Object.assign({},DEF);const OLD_CONSENT='찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 축제가 끝나면 지워요.';
 let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);if(S.consentText===OLD_CONSENT)S.consentText=DEF.consentText;}catch(e){}
@@ -2448,9 +2448,9 @@ async function fillPool(target,onp){if(filling||!S.gas)return poolGet().length;f
   try{
     // 1) 한 번에 여러 개 (새 Code.gs). 첫 묶음은 혼자 보내서 되는지 확인
     const batch=async n=>{const sids=Array.from({length:n},()=>sidNow()+'-'+(fillN++));inflight+=n;
-      try{const a=await gasPost({action:'folders',sids},90000);if(a&&Array.isArray(a.folders)&&a.folders.length){batchOK=true;poolPush(a.folders,onp,target);}else{batchOK=false;throw 0;}}finally{inflight-=n;}};
-    if(batchOK!==false&&need()>0){try{await batch(Math.min(10,need()));}catch(e){if(batchOK!==true)batchOK=false;else fail++;}}
-    if(batchOK){await Promise.all(Array.from({length:5},async()=>{while(need()>0&&fail<3){try{await batch(Math.min(10,need()));}catch(e){fail++;}}}));}
+      try{const a=await gasPost({action:'folders',sids},180000);if(a&&Array.isArray(a.folders)&&a.folders.length){batchOK=true;poolPush(a.folders,onp,target);}else{batchOK=false;throw 0;}}finally{inflight-=n;}};
+    if(batchOK!==false&&need()>0){try{await batch(Math.min(25,need()));}catch(e){if(batchOK!==true)batchOK=false;else fail++;}}
+    if(batchOK){await Promise.all(Array.from({length:4},async()=>{while(need()>0&&fail<3){try{await batch(Math.min(25,need()));}catch(e){fail++;}}}));}
     // 2) 예전 Code.gs: 하나씩 6개 동시에
     else{if(need()>0)await one().catch(()=>fail++);
       await Promise.all(Array.from({length:6},async()=>{while(need()>0&&fail<3){inflight++;try{await one();}catch(e){fail++;}finally{inflight--;}}}));}
