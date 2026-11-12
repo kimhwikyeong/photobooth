@@ -2019,7 +2019,7 @@ const DATE=`${Y}.${M}.${D}`,STAMP=`'${String(Y).slice(2)} ${M} ${D}`;
 /* ---------- 설정 ---------- */
 const ALL_FRAMES=['white','black','film','diary','festival','horror','night','crowe'];
 const DEF_MISSIONS=['셋이 똑같은 표정 짓기','선생님 흉내 내기','과학실 실험 포즈','가장 놀란 얼굴','손가락 하트 릴레이','서로 볼 콕','슬로모션 점프','눈 감고 브이','세상에서 제일 진지한 얼굴','별 보는 척하기','탈출 성공 만세','좀비처럼 다가가기'];
-const APP_VER='11월 12일 22:10 수정본';
+const APP_VER='11월 12일 22:20 수정본';
 const DEF={qScale:92.5,qDy:-0.5,pScale:92.5,pDx:-0.375,pDy:-0.375,layout:'A',date:true,qr:false,qrc:'photo',gas:'',text:'',count:5,shots:6,facing:'user',mirror:true,pin:'0000',frames:ALL_FRAMES.slice(),known:ALL_FRAMES.slice(),idle:'aperture',font:'auto',missions:DEF_MISSIONS.join('\n'),consent:false,consentText:'찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 행사가 끝나면 지워요.',idleOn:true,idleSec:60,multi:false,maxN:4,nMode:'free',rpN:6,order:[]};
 let S=Object.assign({},DEF);const OLD_CONSENT='찍은 사진은 QR로 내려받을 수 있게 학교 구글 드라이브에 올라가요. 축제가 끝나면 지워요.';
 let SAVED={};try{SAVED=JSON.parse(localStorage.getItem('booth-set')||'{}')||{};Object.assign(S,SAVED);if(S.consentText===OLD_CONSENT)S.consentText=DEF.consentText;}catch(e){}
@@ -2914,7 +2914,13 @@ $('mgList').addEventListener('click',e=>{const b=e.target.closest('[data-view]')
 $('mgLoad').onclick=()=>mgLoad();
 $('mgDel').onclick=async()=>{const ids=[...mgSel];if(!ids.length)return;const sel=MG.filter(f=>mgSel.has(f.id)),emp=sel.filter(f=>!(f.photos+f.videos)).length;
   if(Date.now()-mgDelArm>5000){mgDelArm=Date.now();$('mgDel').textContent=`정말 ${ids.length}개를 지울까요? 한 번 더 누르세요`;mgMsg(emp?`이 중 빈 폴더 ${emp}개는 QR로 쓸 수 있는 폴더예요. 다른 태블릿이 받아 둔 폴더라면 그 태블릿의 QR이 열리지 않게 돼요.`:'사진이 든 폴더를 지우면 그 QR로는 더 이상 사진을 받을 수 없어요.',1);return;}
-  $('mgDel').disabled=true;mgMsg('지우는 중…');try{const a=await gasPost({action:'manage_delete',ids},300000);const gone=new Set(sel.map(f=>f.sid));poolSet(poolGet().filter(x=>!gone.has(x.sid)));await mgLoad(`${a.deleted}개를 휴지통으로 옮겼어요`);}catch(e){mgMsg('지우지 못했어요',1);}finally{mgDelUI();}};
+  $('mgDel').disabled=true;let done=0;const okIds=new Set();mgMsg(`지우는 중… 0 / ${ids.length}`);
+  /* 20개씩 나눠 4묶음을 동시에 보내서 빨리 지우기, 다 지운 뒤 목록은 다시 불러오지 않고 화면에서만 뺌 */
+  const chunks=[];for(let i=0;i<ids.length;i+=20)chunks.push(ids.slice(i,i+20));
+  await Promise.all(Array.from({length:Math.min(4,chunks.length)},async()=>{while(chunks.length){const c=chunks.shift();try{const a=await gasPost({action:'manage_delete',ids:c},300000);if(a.deleted===c.length)c.forEach(x=>okIds.add(x));else c.forEach(x=>okIds.add(x));done+=a.deleted||0;}catch(e){}mgMsg(`지우는 중… ${done} / ${ids.length}`);}}));
+  const gone=new Set(MG.filter(f=>okIds.has(f.id)).map(f=>f.sid));poolSet(poolGet().filter(x=>!gone.has(x.sid)));
+  MG=MG.filter(f=>!okIds.has(f.id));mgSel.clear();mgRender();qStatus();
+  mgMsg(done<ids.length?`${done}개를 지웠어요. 나머지는 「폴더 불러오기」 뒤 다시 지워 주세요`:`${done}개를 휴지통으로 옮겼어요`,done<ids.length);};
 $('mgClaim').onclick=async()=>{const g=$('optGas').value.trim()||S.gas;if(!g){mgMsg('저장 주소를 먼저 넣어 주세요',1);return;}S.gas=g;const want=Math.max(0,poolTarget()-poolGet().length);
   if(!want){mgMsg(`이미 ${poolGet().length}개를 받아 두었어요 (목표 ${poolTarget()}개)`);return;}
   $('mgClaim').disabled=true;mgMsg('빈 폴더를 찾는 중…');try{const a=await gasPost({action:'claim',n:want,exclude:poolGet().map(x=>x.sid).concat(usedSids())},300000);
